@@ -18,11 +18,9 @@ import org.springframework.context.ApplicationContext;
 public class ImServerApplication implements CommandLineRunner {
     @Autowired
     private PushMessageServer nettyServer;
-    @Autowired
     private RedisStore redisStore;
-
     public static void main(String[] args) {
-        ApplicationContext context = SpringApplication.run(ImServerApplication.class, args);
+        SpringApplication.run(ImServerApplication.class, args);
     }
 
     public void run(String... strings) throws Exception {
@@ -30,7 +28,7 @@ public class ImServerApplication implements CommandLineRunner {
         nettyServer.initData();
 
         RedisMessageHandler messageListener = new RedisMessageHandler(nettyServer);
-        redisStore.subscribeChannel(Constant.ROOT_QUEUE, messageListener);
+        redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
 
         future.sync();
     }

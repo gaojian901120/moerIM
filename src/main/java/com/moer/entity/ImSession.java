@@ -52,5 +52,5 @@ public class ImSession {
      * 待推送到客户端的消息队列
      * @TODO arraylist or 其他列表结构
      */
-    List<ImMessage> msgQueue = new ArrayList<>();
+    List<ImMessage> msgQueue = new ArrayList<ImMessage>();
 }

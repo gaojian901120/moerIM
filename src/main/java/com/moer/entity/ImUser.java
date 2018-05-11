@@ -1,5 +1,6 @@
 package com.moer.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,5 +28,13 @@ public class ImUser
     /**
      * 未读消息数详情
      */
-    Map<String,String> unReadDetail = new HashMap<>();
+    Map<String,ImMessage> unReadDetail = new HashMap<String, ImMessage>();
+
+    /**
+     * 用户订阅的群聊列表
+     */
+    Map<Integer, ImGroup> groupMap = new HashMap<Integer, ImGroup>();
+
+
+
 }

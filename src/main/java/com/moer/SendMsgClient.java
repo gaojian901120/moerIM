@@ -20,7 +20,7 @@ public class SendMsgClient {
             imMessage.setRecv(100500 + i % 10);
             imMessage.setSend(100809070 + i % 2);
             imMessage.setSendTime(System.currentTimeMillis());
-            redisStore.pubishMessage(Constant.ROOT_QUEUE, JSON.toJSONString(imMessage));
+            redisStore.pubishMessage(Constant.MSG_RECV_QUEUE, JSON.toJSONString(imMessage));
 
         }            System.out.println(System.currentTimeMillis());
 

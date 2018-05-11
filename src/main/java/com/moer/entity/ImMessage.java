@@ -5,11 +5,21 @@ package com.moer.entity;
  * 消息实体  保存一个消息的数据结构
  */
 public class ImMessage {
+    //消息mid 递增
+    private long mid;
     private int send;
     private int recv;
     private String content;
+    /**
+     * 消息类型 文本 图片 视频等
+     */
     private int msgType;
     private long sendTime;
+    /**
+     * 消息類型 發送到群聊、單聊等
+     */
+    private int chatType;
+    private int extend;
 
     public int getSend() {
         return send;

@@ -3,6 +3,7 @@ package com.moer.store;
 import com.moer.config.RedisConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -17,7 +18,6 @@ import java.util.List;
 @Component
 public class RedisStore {
     public static final Logger log = LoggerFactory.getLogger(RedisStore.class);
-    //@Autowired
     private RedisConfig redisConfig;
     private JedisPool jedisPool;
 

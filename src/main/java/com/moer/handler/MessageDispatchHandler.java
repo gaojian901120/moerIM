@@ -52,7 +52,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
         UserStore userStore = application.getUserStore();
         Set<Integer> onlineGroupUser = groupStore.getAllGroupOnlineUser(recver);
         for (Integer uid : onlineGroupUser) {
-            List<ImMessage> messageList = new ArrayList<>();
+            List<ImMessage> messageList = new ArrayList<ImMessage>();
             messageList.add(imMessage);
             userStore.pushMessage(uid, messageList);
             Channel channel  = application.getUserStore().getChannel(uid);

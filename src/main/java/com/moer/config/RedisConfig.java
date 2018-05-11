@@ -11,14 +11,14 @@ import org.springframework.context.annotation.PropertySource;
 @ConfigurationProperties(value = "redis")
 @PropertySource(value = "classpath:redis.properties")
 public class RedisConfig {
-    private String host = "172.16.10.247";
-    private int port = 6379;
-    private int minIdle = 20;
-    private int maxIdle = 300;
-    private int maxTotal = 10000;
-    private int maxWait = 1000;
-    private int timeBetweenEvictionRunsMillis = 300000;
-    private int minEvictableIdleTimeMillis = 30000;
+    private String host;
+    private int port;
+    private int minIdle;
+    private int maxIdle;
+    private int maxTotal;
+    private int maxWait;
+    private int timeBetweenEvictionRunsMillis;
+    private int minEvictableIdleTimeMillis;
 
     public String getHost() {
         return host;
