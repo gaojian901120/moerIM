@@ -26,6 +26,9 @@ import java.util.TreeMap;
  * 3、服务层节点收到初始化数据的信息后，进行数据初始化并打开服务端口，开始提供服务。然后告诉连接层节点 可以对外提供服务了。
  * 4、连接层节点收到服务已经启动的信息后，打开端口，正式对外提供服务。
  * 以上不同节点之间的交互都是通过zookeeper进行交互的。
+ * 连接层节点的状态：1、imregiste（服务节点注册到zk完成），3、imdatainit(业务数据初始化完成)
+ * 服务层节点的状态：2、entrtyconnect(入口节点注册到zk完成) 4、work（正式提供服务）
+ * 当新增节点的时候所有 新节点一次进行到1，2状态后
  *
  */
 public class ImStatusApplication
@@ -38,12 +41,19 @@ public class ImStatusApplication
         try {
             NodeManager nodeManager = new NodeManager(zkConfig);
             ZooKeeper zooKeeper = nodeManager.getZk();
-            Stat stat = zooKeeper.exists(Constant.ZK_IM_ROOT_NODE_NAME,false);
+            Stat stat = zooKeeper.exists(Constant.ZK_IM_ROOT_NODE_NAME,false);//创建删除节点 设置数据 触发监控器
             if (stat == null) {
                //节点不存在 创建节点
                 zooKeeper.create(Constant.ZK_IM_ROOT_NODE_NAME, String.valueOf(System.currentTimeMillis()).getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
-            zooKeeper.getChildren(Constant.ZK_IM_ROOT_NODE_NAME);
+            List<String> children = zooKeeper.getChildren(Constant.ZK_IM_ROOT_NODE_NAME, nodeManager);//watcher 删除本节点或者创建删除子节点触发  getData 删除节点 设置数据
+            if(children != null && children.size() > 0) {
+                for (String childPath :children) {
+                    zooKeeper.getData();
+                }
+            }
+
+
         }catch (Exception e){
             logger.error("zookeeper start error, message: " + e.getMessage());
         }

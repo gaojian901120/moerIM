@@ -11,5 +11,7 @@ public class Constant {
     //zookeeper Im根节点的path
     public static final String ZK_IM_ROOT_NODE_NAME = "/moer_im";
     //根节点下的子节点的path的前缀
-    public static final String ZK_IM_CHIID_NODE_NAME_PREFIX = "moer_im_child";
+    public static final String ZK_IM_CHIID_NODE_NAME_PREFIX = "moer_im_child:"; //格式 prefix:ip:port  data 保存当前节点的状态
+
+
 }
