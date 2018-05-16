@@ -2,7 +2,6 @@ package com.moer.server;
 
 import com.moer.ImChannelInitializer;
 import com.moer.config.NettyConfig;
-import com.moer.config.RedisConfig;
 import com.moer.store.GroupStore;
 import com.moer.store.UserStore;
 import io.netty.bootstrap.ServerBootstrap;
@@ -17,8 +16,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
@@ -27,7 +24,6 @@ import java.net.InetSocketAddress;
  * 一个accept进程组 一个io进程组
  * 负责向客户端推送消息
  */
-@Component
 public class PushMessageServer {
     private static final Logger log = LoggerFactory.getLogger(PushMessageServer.class);
     private final NettyConfig nettyConfig;
@@ -37,12 +33,10 @@ public class PushMessageServer {
     private EventLoopGroup worker;
     private UserStore userStore;
     private GroupStore groupStore;
-    @Autowired
-    private RedisConfig redisConfig;
 
     public PushMessageServer(NettyConfig config) {
+        nettyConfig = new NettyConfig(config);
         serverBootstrap = new ServerBootstrap();
-        nettyConfig = config;
         imChannelInitializer = new ImChannelInitializer(nettyConfig, this);
         userStore = new UserStore();
         groupStore = new GroupStore();

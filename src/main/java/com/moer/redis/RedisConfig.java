@@ -1,15 +1,9 @@
-package com.moer.config;
+package com.moer.redis;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * Created by gaoxuejian on 2018/5/2.
  */
-@Configuration
-@ConfigurationProperties(value = "redis")
-@PropertySource(value = "classpath:redis.properties")
 public class RedisConfig {
     private String host;
     private int port;
@@ -19,6 +13,20 @@ public class RedisConfig {
     private int maxWait;
     private int timeBetweenEvictionRunsMillis;
     private int minEvictableIdleTimeMillis;
+
+    public RedisConfig(){}
+
+    public RedisConfig(RedisConfig config)
+    {
+        host = config.getHost();
+        port = config.getPort();
+        minIdle = config.getMinIdle();
+        maxIdle = config.getMaxIdle();
+        maxTotal = config.getMaxTotal();
+        maxWait = config.getMaxWait();
+        timeBetweenEvictionRunsMillis = config.getTimeBetweenEvictionRunsMillis();
+        minEvictableIdleTimeMillis = config.getMinEvictableIdleTimeMillis();
+    }
 
     public String getHost() {
         return host;

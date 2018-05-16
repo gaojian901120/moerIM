@@ -1,10 +1,7 @@
-package com.moer.store;
+package com.moer.redis;
 
-import com.moer.config.RedisConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -15,14 +12,13 @@ import java.util.List;
 /**
  * Created by gaoxuejian on 2018/5/2.
  */
-@Component
 public class RedisStore {
     public static final Logger log = LoggerFactory.getLogger(RedisStore.class);
     private RedisConfig redisConfig;
     private JedisPool jedisPool;
 
-    public RedisStore() {
-        redisConfig = new RedisConfig();
+    public RedisStore(RedisConfig pconfig) {
+        redisConfig = new RedisConfig(pconfig);
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMinIdle(redisConfig.getMinIdle());
         config.setMaxIdle(redisConfig.getMaxIdle());

@@ -2,7 +2,7 @@ package com.moer;
 
 import com.alibaba.fastjson.JSON;
 import com.moer.entity.ImMessage;
-import com.moer.store.RedisStore;
+import com.moer.redis.RedisStore;
 
 /**
  * Created by gaoxuejian on 2018/5/2.
@@ -10,7 +10,7 @@ import com.moer.store.RedisStore;
 public class SendMsgClient {
 
     public static void main(String[] args) {
-        RedisStore redisStore = new RedisStore();
+        RedisStore redisStore = new RedisStore(ImServerApplication.loadRedisConfig());
         ImMessage imMessage = new ImMessage();
         System.out.println(System.currentTimeMillis());
 

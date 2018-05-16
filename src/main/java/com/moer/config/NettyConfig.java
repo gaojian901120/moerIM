@@ -1,15 +1,9 @@
 package com.moer.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * Created by gaoxuejian on 2018/5/1.
  */
-@Configuration
-@ConfigurationProperties(value = "netty")
-@PropertySource(value = "classpath:netty.properties")
 public class NettyConfig {
     private int port;
 
@@ -22,6 +16,18 @@ public class NettyConfig {
     private int maxHttpContnetLength;
 
     private boolean useHttpCompress;
+
+    public NettyConfig(){};
+
+    public NettyConfig(NettyConfig config)
+    {
+        port = config.getPort();
+        useEpoll = config.isUseEpoll();
+        useSsl = config.isUseSsl();
+        hostName = config.getHostName();
+        maxHttpContnetLength = config.getMaxHttpContnetLength();
+        useHttpCompress = config.isUseHttpCompress();
+    }
 
     public int getPort() {
         return port;
@@ -70,4 +76,5 @@ public class NettyConfig {
     public void setUseHttpCompress(boolean useHttpCompress) {
         this.useHttpCompress = useHttpCompress;
     }
+
 }

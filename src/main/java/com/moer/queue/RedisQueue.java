@@ -1,17 +1,13 @@
 package com.moer.queue;
 
-import com.moer.store.RedisStore;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.moer.redis.RedisStore;
 
 import java.util.List;
 
 /**
  * Created by gaoxuejian on 2018/5/2.
  */
-@Component
 public class RedisQueue {
-    @Autowired
     RedisStore redisStore;
 
     public boolean push(String key, String s) {
