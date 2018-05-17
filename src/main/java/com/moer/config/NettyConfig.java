@@ -17,10 +17,12 @@ public class NettyConfig {
 
     private boolean useHttpCompress;
 
-    public NettyConfig(){};
+    public NettyConfig() {
+    }
 
-    public NettyConfig(NettyConfig config)
-    {
+    ;
+
+    public NettyConfig(NettyConfig config) {
         port = config.getPort();
         useEpoll = config.isUseEpoll();
         useSsl = config.isUseSsl();

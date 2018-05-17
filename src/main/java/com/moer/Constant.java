@@ -13,5 +13,4 @@ public class Constant {
     //根节点下的子节点的path的前缀
     public static final String ZK_IM_CHIID_NODE_NAME_PREFIX = "moer_im_child:"; //格式 prefix:ip:port  data 保存当前节点的状态
 
-
 }

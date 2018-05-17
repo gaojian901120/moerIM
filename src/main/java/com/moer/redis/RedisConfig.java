@@ -14,10 +14,10 @@ public class RedisConfig {
     private int timeBetweenEvictionRunsMillis;
     private int minEvictableIdleTimeMillis;
 
-    public RedisConfig(){}
+    public RedisConfig() {
+    }
 
-    public RedisConfig(RedisConfig config)
-    {
+    public RedisConfig(RedisConfig config) {
         host = config.getHost();
         port = config.getPort();
         minIdle = config.getMinIdle();

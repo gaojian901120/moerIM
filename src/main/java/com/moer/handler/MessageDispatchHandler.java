@@ -55,7 +55,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             List<ImMessage> messageList = new ArrayList<ImMessage>();
             messageList.add(imMessage);
             userStore.pushMessage(uid, messageList);
-            Channel channel  = application.getUserStore().getChannel(uid);
+            Channel channel = application.getUserStore().getChannel(uid);
             if (channel != null && channel.isOpen()) {
                 try {
                     FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(JSON.toJSONString(userStore.popAllMessage(uid)).getBytes("UTF-8")));
@@ -64,7 +64,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                     channel.write(response);
                     channel.flush();
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }

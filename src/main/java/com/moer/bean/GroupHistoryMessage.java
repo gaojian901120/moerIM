@@ -70,7 +70,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.mid
      *
      * @return the value of group_history_message.mid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getMid() {
@@ -82,7 +81,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.mid
      *
      * @param mid the value for group_history_message.mid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMid(String mid) {
@@ -94,7 +92,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.send
      *
      * @return the value of group_history_message.send
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getSend() {
@@ -106,7 +103,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.send
      *
      * @param send the value for group_history_message.send
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setSend(String send) {
@@ -118,7 +114,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.recv
      *
      * @return the value of group_history_message.recv
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getRecv() {
@@ -130,7 +125,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.recv
      *
      * @param recv the value for group_history_message.recv
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setRecv(String recv) {
@@ -142,7 +136,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.msg_type
      *
      * @return the value of group_history_message.msg_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getMsgType() {
@@ -154,7 +147,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.msg_type
      *
      * @param msgType the value for group_history_message.msg_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMsgType(Integer msgType) {
@@ -166,7 +158,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.chat_type
      *
      * @return the value of group_history_message.chat_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getChatType() {
@@ -178,7 +169,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.chat_type
      *
      * @param chatType the value for group_history_message.chat_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setChatType(Integer chatType) {
@@ -190,7 +180,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.send_time
      *
      * @return the value of group_history_message.send_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Long getSendTime() {
@@ -202,7 +191,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.send_time
      *
      * @param sendTime the value for group_history_message.send_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setSendTime(Long sendTime) {
@@ -214,7 +202,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.show_type
      *
      * @return the value of group_history_message.show_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getShowType() {
@@ -226,7 +213,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.show_type
      *
      * @param showType the value for group_history_message.show_type
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setShowType(Integer showType) {
@@ -238,7 +224,6 @@ public class GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.msg_seq
      *
      * @return the value of group_history_message.msg_seq
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getMsgSeq() {
@@ -250,7 +235,6 @@ public class GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.msg_seq
      *
      * @param msgSeq the value for group_history_message.msg_seq
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMsgSeq(Integer msgSeq) {

@@ -57,6 +57,7 @@ public class ImChannelInitializer extends ChannelInitializer<Channel> {
 
     private NettyConfig nettyConfig;
     private PushMessageServer application;
+
     public ImChannelInitializer(NettyConfig nettyConfig, PushMessageServer application) {
         this.nettyConfig = nettyConfig;
         this.application = application;

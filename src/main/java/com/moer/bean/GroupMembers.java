@@ -128,7 +128,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.gid
      *
      * @return the value of group_members.gid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getGid() {
@@ -140,7 +139,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.gid
      *
      * @param gid the value for group_members.gid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setGid(String gid) {
@@ -152,7 +150,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.uid
      *
      * @return the value of group_members.uid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getUid() {
@@ -164,7 +161,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.uid
      *
      * @param uid the value for group_members.uid
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setUid(Integer uid) {
@@ -176,7 +172,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.role_flag
      *
      * @return the value of group_members.role_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getRoleFlag() {
@@ -188,7 +183,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.role_flag
      *
      * @param roleFlag the value for group_members.role_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setRoleFlag(Integer roleFlag) {
@@ -200,7 +194,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.push_flag
      *
      * @return the value of group_members.push_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getPushFlag() {
@@ -212,7 +205,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.push_flag
      *
      * @param pushFlag the value for group_members.push_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setPushFlag(Integer pushFlag) {
@@ -224,7 +216,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.create_time
      *
      * @return the value of group_members.create_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Date getCreateTime() {
@@ -236,7 +227,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.create_time
      *
      * @param createTime the value for group_members.create_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setCreateTime(Date createTime) {
@@ -248,7 +238,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.update_time
      *
      * @return the value of group_members.update_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Date getUpdateTime() {
@@ -260,7 +249,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.update_time
      *
      * @param updateTime the value for group_members.update_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setUpdateTime(Date updateTime) {
@@ -272,7 +260,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.expire_flag
      *
      * @return the value of group_members.expire_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getExpireFlag() {
@@ -284,7 +271,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.expire_flag
      *
      * @param expireFlag the value for group_members.expire_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setExpireFlag(Integer expireFlag) {
@@ -296,7 +282,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.expire_time
      *
      * @return the value of group_members.expire_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Date getExpireTime() {
@@ -308,7 +293,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.expire_time
      *
      * @param expireTime the value for group_members.expire_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setExpireTime(Date expireTime) {
@@ -320,7 +304,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.mute_flag
      *
      * @return the value of group_members.mute_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getMuteFlag() {
@@ -332,7 +315,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.mute_flag
      *
      * @param muteFlag the value for group_members.mute_flag
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMuteFlag(Integer muteFlag) {
@@ -344,7 +326,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.mute_time
      *
      * @return the value of group_members.mute_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Date getMuteTime() {
@@ -356,7 +337,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.mute_time
      *
      * @param muteTime the value for group_members.mute_time
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMuteTime(Date muteTime) {
@@ -368,7 +348,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.nick_name
      *
      * @return the value of group_members.nick_name
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getNickName() {
@@ -380,7 +359,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.nick_name
      *
      * @param nickName the value for group_members.nick_name
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setNickName(String nickName) {
@@ -392,7 +370,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.package_level
      *
      * @return the value of group_members.package_level
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getPackageLevel() {
@@ -404,7 +381,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.package_level
      *
      * @param packageLevel the value for group_members.package_level
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setPackageLevel(Integer packageLevel) {
@@ -416,7 +392,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.stu_level
      *
      * @return the value of group_members.stu_level
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getStuLevel() {
@@ -428,7 +403,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.stu_level
      *
      * @param stuLevel the value for group_members.stu_level
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setStuLevel(Integer stuLevel) {
@@ -440,7 +414,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.channel
      *
      * @return the value of group_members.channel
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getChannel() {
@@ -452,7 +425,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.channel
      *
      * @param channel the value for group_members.channel
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setChannel(String channel) {
@@ -464,7 +436,6 @@ public class GroupMembers {
      * This method returns the value of the database column group_members.last_read_seq
      *
      * @return the value of group_members.last_read_seq
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public Integer getLastReadSeq() {
@@ -476,7 +447,6 @@ public class GroupMembers {
      * This method sets the value of the database column group_members.last_read_seq
      *
      * @param lastReadSeq the value for group_members.last_read_seq
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setLastReadSeq(Integer lastReadSeq) {

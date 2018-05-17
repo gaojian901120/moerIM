@@ -3,6 +3,7 @@ package com.moer;
 import com.alibaba.fastjson.JSON;
 import com.moer.entity.ImMessage;
 import com.moer.redis.RedisStore;
+import com.moer.util.ConfigUtil;
 
 /**
  * Created by gaoxuejian on 2018/5/2.
@@ -10,7 +11,7 @@ import com.moer.redis.RedisStore;
 public class SendMsgClient {
 
     public static void main(String[] args) {
-        RedisStore redisStore = new RedisStore(ImServerApplication.loadRedisConfig());
+        RedisStore redisStore = new RedisStore(ConfigUtil.loadRedisConfig());
         ImMessage imMessage = new ImMessage();
         System.out.println(System.currentTimeMillis());
 
@@ -22,7 +23,8 @@ public class SendMsgClient {
             imMessage.setSendTime(System.currentTimeMillis());
             redisStore.pubishMessage(Constant.MSG_RECV_QUEUE, JSON.toJSONString(imMessage));
 
-        }            System.out.println(System.currentTimeMillis());
+        }
+        System.out.println(System.currentTimeMillis());
 
     }
 }

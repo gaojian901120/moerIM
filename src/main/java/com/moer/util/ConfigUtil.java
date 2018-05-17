@@ -9,10 +9,8 @@ import java.util.ResourceBundle;
 /**
  * Created by gaoxuejian on 2018/5/16.
  */
-public class ConfigUtil
-{
-    public static RedisConfig loadRedisConfig()
-    {
+public class ConfigUtil {
+    public static RedisConfig loadRedisConfig() {
         RedisConfig redisConfig = new RedisConfig();
         ResourceBundle resourceBundle = ResourceBundle.getBundle("redis");
         redisConfig.setHost(resourceBundle.getString("redis.host"));
@@ -26,8 +24,7 @@ public class ConfigUtil
         return redisConfig;
     }
 
-    public static NettyConfig loadNettyConfig()
-    {
+    public static NettyConfig loadNettyConfig() {
         NettyConfig nettyConfig = new NettyConfig();
         ResourceBundle resourceBundle = ResourceBundle.getBundle("netty");
         nettyConfig.setHostName(resourceBundle.getString("netty.hostName"));
@@ -39,8 +36,7 @@ public class ConfigUtil
         return nettyConfig;
     }
 
-    public static ZkConfig loadZkConfig()
-    {
+    public static ZkConfig loadZkConfig() {
         ZkConfig zkConfig = new ZkConfig();
         ResourceBundle resourceBundle = ResourceBundle.getBundle("zookeeper");
         zkConfig.setPort(Integer.parseInt(resourceBundle.getString("zk.port")));

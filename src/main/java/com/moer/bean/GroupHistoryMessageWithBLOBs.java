@@ -22,7 +22,6 @@ public class GroupHistoryMessageWithBLOBs extends GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.msg
      *
      * @return the value of group_history_message.msg
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getMsg() {
@@ -34,7 +33,6 @@ public class GroupHistoryMessageWithBLOBs extends GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.msg
      *
      * @param msg the value for group_history_message.msg
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setMsg(String msg) {
@@ -46,7 +44,6 @@ public class GroupHistoryMessageWithBLOBs extends GroupHistoryMessage {
      * This method returns the value of the database column group_history_message.extp
      *
      * @return the value of group_history_message.extp
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public String getExtp() {
@@ -58,7 +55,6 @@ public class GroupHistoryMessageWithBLOBs extends GroupHistoryMessage {
      * This method sets the value of the database column group_history_message.extp
      *
      * @param extp the value for group_history_message.extp
-     *
      * @mbggenerated Tue May 08 18:35:32 CST 2018
      */
     public void setExtp(String extp) {

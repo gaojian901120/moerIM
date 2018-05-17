@@ -3,8 +3,7 @@ package com.moer.entity;
 /**
  * Created by gaoxuejian on 2018/5/8.
  */
-public class ImGroupUser
-{
+public class ImGroupUser {
     int gid;
     int uid;
     int role;

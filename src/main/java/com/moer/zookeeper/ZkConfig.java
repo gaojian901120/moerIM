@@ -3,15 +3,17 @@ package com.moer.zookeeper;
 /**
  * Created by gaoxuejian on 2018/5/14.
  */
-public class ZkConfig
-{
+public class ZkConfig {
     private String host;
     private int port;
     private String mode;
 
-    public ZkConfig(){};
+    public ZkConfig() {
+    }
 
-    public ZkConfig(ZkConfig zkConfig){
+    ;
+
+    public ZkConfig(ZkConfig zkConfig) {
         host = zkConfig.getHost();
         port = zkConfig.getPort();
         mode = zkConfig.getMode();
