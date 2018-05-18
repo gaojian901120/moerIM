@@ -42,4 +42,9 @@ public class ZkConfig {
     public void setMode(String model) {
         this.mode = model;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Host:%s, Port:%d, Mode:%s", host, port, mode);
+    }
 }

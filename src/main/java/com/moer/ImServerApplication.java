@@ -21,7 +21,8 @@ public class ImServerApplication {
         RedisConfig redisConfig = ConfigUtil.loadRedisConfig();
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
 
-        NodeManager nodeManager = new NodeManager(zkConfig);
+        NodeManager nodeManager = NodeManager.getInstance();
+        nodeManager.init(zkConfig);
         if (!nodeManager.createChildNode(nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort()))) return;
 
         PushMessageServer nettyServer = new PushMessageServer(nettyConfig);

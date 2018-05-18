@@ -1,6 +1,6 @@
 package com.moer.server;
 
-import com.moer.ImChannelInitializer;
+import com.moer.L2ChannelInitializer;
 import com.moer.config.NettyConfig;
 import com.moer.store.GroupStore;
 import com.moer.store.UserStore;
@@ -28,7 +28,7 @@ public class PushMessageServer {
     private static final Logger log = LoggerFactory.getLogger(PushMessageServer.class);
     private final NettyConfig nettyConfig;
     private ServerBootstrap serverBootstrap;
-    private ImChannelInitializer imChannelInitializer;
+    private L2ChannelInitializer imChannelInitializer;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
     private UserStore userStore;
@@ -37,7 +37,7 @@ public class PushMessageServer {
     public PushMessageServer(NettyConfig config) {
         nettyConfig = new NettyConfig(config);
         serverBootstrap = new ServerBootstrap();
-        imChannelInitializer = new ImChannelInitializer(nettyConfig, this);
+        imChannelInitializer = new L2ChannelInitializer(nettyConfig, this);
         userStore = new UserStore();
         groupStore = new GroupStore();
     }

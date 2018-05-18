@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * Created by gaoxuejian on 2018/5/1.
  * 初始化启动时候的Channel Handler
  */
-public class ImChannelInitializer extends ChannelInitializer<Channel> {
+public class L2ChannelInitializer extends ChannelInitializer<Channel> {
     /**
      * inbound http解码器
      */
@@ -53,12 +53,12 @@ public class ImChannelInitializer extends ChannelInitializer<Channel> {
      */
     public static final String SOCKETIO_ENCODER = "socketioEncoder";
 
-    private static final Logger log = LoggerFactory.getLogger(ImChannelInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(L2ChannelInitializer.class);
 
     private NettyConfig nettyConfig;
     private PushMessageServer application;
 
-    public ImChannelInitializer(NettyConfig nettyConfig, PushMessageServer application) {
+    public L2ChannelInitializer(NettyConfig nettyConfig, PushMessageServer application) {
         this.nettyConfig = nettyConfig;
         this.application = application;
 

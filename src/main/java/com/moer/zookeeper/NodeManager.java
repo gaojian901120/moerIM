@@ -27,10 +27,26 @@ public class NodeManager implements Watcher {
     private ZkConfig zkConfig;
     private ZooKeeper zk;
 
-    public NodeManager(ZkConfig config) throws Exception {
-        zkConfig = new ZkConfig(config);
-        zk = new ZooKeeper(zkConfig.getHost() + ":" + zkConfig.getPort(), 3000, this);
+    private static class NodeManagerHolder {
+        private static final NodeManager instance = new NodeManager();
+    }
 
+    private NodeManager() {
+    }
+
+    public final static NodeManager getInstance() {
+        return NodeManagerHolder.instance;
+    }
+
+    public boolean init(ZkConfig config) {
+        try {
+            zkConfig = new ZkConfig(config);
+            zk = new ZooKeeper(zkConfig.getHost() + ":" + zkConfig.getPort(), 3000, this);
+            return true;
+        } catch (Exception e) {
+            logger.error("init zookeeper server failed with config {}", zkConfig.toString());
+            return false;
+        }
     }
 
     /**
