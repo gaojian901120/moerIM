@@ -38,12 +38,12 @@ public class L1EntryApplication {
         //连接zookeeper
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
         try {
-            NodeManager nodeManager = NodeManager.getInstance();
-            if (!nodeManager.init(zkConfig)) {
-                return;
-            }
-            if (!nodeManager.createRootNode())
-                return;
+//            NodeManager nodeManager = NodeManager.getInstance();
+//            if (!nodeManager.init(zkConfig)) {
+//                return;
+//            }
+//            if (!nodeManager.createRootNode())
+//                return;
 //            if (!nodeManager.checkAndMonitorChildStat()) {
 //                return;
 //            }

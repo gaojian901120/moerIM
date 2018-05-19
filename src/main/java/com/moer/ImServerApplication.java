@@ -21,17 +21,17 @@ public class ImServerApplication {
         RedisConfig redisConfig = ConfigUtil.loadRedisConfig();
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
 
-        NodeManager nodeManager = NodeManager.getInstance();
-        nodeManager.init(zkConfig);
-        if (!nodeManager.createChildNode(nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort()))) return;
+//        NodeManager nodeManager = NodeManager.getInstance();
+//        nodeManager.init(zkConfig);
+//        if (!nodeManager.createChildNode(nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort()))) return;
 
         PushMessageServer nettyServer = new PushMessageServer(nettyConfig);
         Future future = nettyServer.start();
         nettyServer.initData();
 
-        RedisMessageHandler messageListener = new RedisMessageHandler(nettyServer);
-        RedisStore redisStore = new RedisStore(redisConfig);
-        redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
+//        RedisMessageHandler messageListener = new RedisMessageHandler(nettyServer);
+//        RedisStore redisStore = new RedisStore(redisConfig);
+//        redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
         future.sync();
     }
 

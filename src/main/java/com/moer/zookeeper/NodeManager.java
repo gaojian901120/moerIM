@@ -95,7 +95,7 @@ public class NodeManager implements Watcher {
             }
             return true;
         } catch (Exception e) {
-            logger.error(String.format("init node: %s, port: %s failed with excetion: %s", e.getMessage()));
+            logger.error(String.format("init root failed with exception: %s", e.getMessage()));
             return false;
         }
     }
@@ -157,8 +157,8 @@ public class NodeManager implements Watcher {
         SortedMap<Integer, String> subMap = vitrualNode.tailMap(hash);
         Integer i = null;
         if (subMap.isEmpty()) {
+            if (vitrualNode.size() == 0) return null;
             i = vitrualNode.firstKey();
-
         } else {
             i = subMap.firstKey();
         }
