@@ -1,6 +1,6 @@
 package com.moer.l1;
 
-import com.moer.HttpChannelInitializer;
+import com.moer.common.HttpChannelInitializer;
 import io.netty.channel.Channel;
 
 /**

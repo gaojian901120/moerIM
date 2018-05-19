@@ -1,6 +1,6 @@
 package com.moer.server;
 
-import com.moer.L2ChannelInitializer;
+import com.moer.l2.L2ChannelInitializer;
 import com.moer.config.NettyConfig;
 import com.moer.store.GroupStore;
 import com.moer.store.UserStore;

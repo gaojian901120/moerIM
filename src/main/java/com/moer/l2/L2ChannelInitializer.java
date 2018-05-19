@@ -1,4 +1,4 @@
-package com.moer;
+package com.moer.l2;
 
 import com.moer.config.NettyConfig;
 import com.moer.handler.PacketHandler;

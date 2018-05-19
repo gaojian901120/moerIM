@@ -1,4 +1,4 @@
-package com.moer;
+package com.moer.common;
 
 /**
  * Created by gaoxuejian on 2018/5/3.

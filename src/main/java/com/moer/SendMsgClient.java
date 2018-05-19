@@ -1,6 +1,7 @@
 package com.moer;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.common.Constant;
 import com.moer.entity.ImMessage;
 import com.moer.redis.RedisStore;
 import com.moer.util.ConfigUtil;

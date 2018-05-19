@@ -1,6 +1,6 @@
 package com.moer.zookeeper;
 
-import com.moer.Constant;
+import com.moer.common.Constant;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
