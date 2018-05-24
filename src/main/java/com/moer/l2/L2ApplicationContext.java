@@ -1,5 +1,6 @@
 package com.moer.l2;
 
+import com.moer.config.ImConfig;
 import com.moer.l2.context.L2GroupContext;
 import com.moer.l2.context.L2UserContext;
 
@@ -23,5 +24,5 @@ public class L2ApplicationContext {
 
     public L2UserContext userContext;
     public L2GroupContext groupContext;
-
+    public ImConfig imConfig;
 }

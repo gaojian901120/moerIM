@@ -17,7 +17,7 @@ public class L2ServiceApplication {
         NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
         RedisConfig redisConfig = ConfigUtil.loadRedisConfig();
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
-
+        L2ApplicationContext.getInstance().imConfig = ConfigUtil.loadImConfig();
 //        NodeManager nodeManager = NodeManager.getInstance();
 //        nodeManager.init(zkConfig);
 //        if (!nodeManager.createChildNode(nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort()))) return;

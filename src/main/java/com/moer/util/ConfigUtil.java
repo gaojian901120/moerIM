@@ -1,5 +1,6 @@
 package com.moer.util;
 
+import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.redis.RedisConfig;
 import com.moer.zookeeper.ZkConfig;
@@ -43,5 +44,14 @@ public class ConfigUtil {
         zkConfig.setHost(resourceBundle.getString("zk.host"));
         zkConfig.setMode(resourceBundle.getString("zk.mode"));
         return zkConfig;
+    }
+
+    public static ImConfig loadImConfig() {
+        ImConfig imConfig = new ImConfig();
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("im");
+        imConfig.setMultiAppEnd(Boolean.valueOf(resourceBundle.getString("multiAppEnd")));
+        imConfig.setMultiWebEnd(Boolean.valueOf(resourceBundle.getString("multiWebEnd")));
+        imConfig.setMultiEnd(Boolean.valueOf(resourceBundle.getString("multiEnd")));
+        return imConfig;
     }
 }

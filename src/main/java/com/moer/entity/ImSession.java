@@ -1,11 +1,12 @@
 package com.moer.entity;
 
+import com.moer.util.CryptUtil;
 import io.netty.channel.Channel;
-import sun.security.mscapi.RSASignature;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import java.util.HashMap;
 /**
  * Created by gaoxuejian on 2018/5/4.
  * 会话管理
@@ -17,6 +18,7 @@ import java.util.List;
  * sessionid理论上不失效，服务端定时检测所有的session，如果session对应的用户当前没有http请求hold 就表示失效了，会清除所有session相关的信息
  */
 public class ImSession {
+    public static final String sessionCode = "fgviunfkls8wemzdwen7q2";
     /**
      * 待推送到客户端的消息队列
      *
@@ -44,10 +46,22 @@ public class ImSession {
      * token对应的生成规则=hash(sessionid+time+uid)
      */
     private String token;
-
+    //从那个端连接上来的
     private String source;
 
-    public String generateSessionid() {
-        return
+    public String encodeSessionid(int uid, long time)
+    {
+        return CryptUtil.str2HexStr(uid + sessionCode + time);
     }
+    public Map<String, String> decodeSessionId(String seeesionId)
+    {
+        String decodeSessionId = CryptUtil.hexStr2Str(seeesionId);
+        String[] decodeArr = decodeSessionId.split(sessionCode);
+        Map<String, String> map = new HashMap<>();
+        map.put("uid", decodeArr[0]);
+        map.put("time", decodeArr[1]);
+        return map;
+    }
+
+
 }
