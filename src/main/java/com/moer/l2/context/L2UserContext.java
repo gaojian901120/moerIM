@@ -4,6 +4,7 @@ import com.moer.entity.ImSession;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,7 +22,7 @@ public class L2UserContext {
      */
     private Map<Integer, Map> onlineUserGroupMap = new ConcurrentHashMap<>();
 
-    public void addOnlineUser(int uid, ImSession imSession)
+    public void addOnlineUserSession(int uid, ImSession imSession)
     {
         Map<String,ImSession> sessionMap = onlineUserMap.get(uid);
         if (sessionMap == null) {
@@ -29,6 +30,29 @@ public class L2UserContext {
             Map<String, ImSession> oldMap = onlineUserMap.putIfAbsent(uid,sessionMap);
             if (oldMap!=null) sessionMap = oldMap;
         }
-        sessionMap.put(imSession.)
+        sessionMap.put(imSession.getSessionid(),imSession);
+    }
+
+    /**
+     *
+     * @param imSession
+     * @return true 表示用户不在线 false 表示用户在线
+     */
+    public boolean delOnlineUserSession(ImSession imSession)
+    {
+        Map<String,String> map = imSession.decodeSessionId(imSession.getSessionid());
+        int uid = Integer.valueOf(map.get("uid"));
+        Map<String,ImSession> sessionMap = onlineUserMap.get(uid);
+        sessionMap.remove(imSession.getSessionid());
+        if (sessionMap.size() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public Map<String,ImSession> getUserOnlineSession(Integer uid)
+    {
+        return onlineUserMap.get(uid);
+
     }
 }

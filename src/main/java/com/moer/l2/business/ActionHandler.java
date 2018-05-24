@@ -1,7 +1,10 @@
 package com.moer.l2.business;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.config.ImConfig;
+import com.moer.entity.ImSession;
 import com.moer.l1.bean.InitResponseBean;
+import com.moer.l2.L2ApplicationContext;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
 import io.netty.channel.ChannelHandlerContext;
@@ -53,7 +56,10 @@ public class ActionHandler {
         if (token != serverHash) {
             return renderResult(1001, "invalid server node，please refresh serveri nfo", null);
         }
-
+        //判断多端登录
+        Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().userContext.getUserOnlineSession(uid);
+        ImConfig imConfig = L2ApplicationContext.getInstance().imConfig;
+        if (imConfig.isMultiAppEnd() )
 //        InitResponseBean irb = new InitResponseBean();
 //        if (method.equals(HttpMethod.GET)) {
 //

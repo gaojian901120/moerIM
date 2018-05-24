@@ -49,9 +49,10 @@ public class ImSession {
     //从那个端连接上来的
     private String source;
 
-    public String encodeSessionid(int uid, long time)
+    public String getSessionid()
     {
-        return CryptUtil.str2HexStr(uid + sessionCode + time);
+        seeesionId = CryptUtil.str2HexStr(uid + sessionCode + createTime);
+        return seeesionId;
     }
     public Map<String, String> decodeSessionId(String seeesionId)
     {
@@ -63,5 +64,7 @@ public class ImSession {
         return map;
     }
 
-
+    public String getSource() {
+        return source;
+    }
 }
