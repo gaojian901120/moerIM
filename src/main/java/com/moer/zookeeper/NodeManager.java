@@ -180,4 +180,14 @@ public class NodeManager implements Watcher {
     public ZooKeeper getZk() {
         return zk;
     }
+
+    /**
+     * 获取所有服务节点的hash值
+     *
+     * @return
+     */
+    public String getNodeHash() {
+        return null;
+    }
+
 }

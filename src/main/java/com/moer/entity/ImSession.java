@@ -1,6 +1,7 @@
 package com.moer.entity;
 
 import io.netty.channel.Channel;
+import sun.security.mscapi.RSASignature;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +44,10 @@ public class ImSession {
      * token对应的生成规则=hash(sessionid+time+uid)
      */
     private String token;
-    /**
-     * 当前token是否失效
-     * 如果第一次失效，会将字段设置为true，后续继续失效则不返回数据
-     */
-    private boolean tokenFailed = false;
+
+    private String source;
+
+    public String generateSessionid() {
+        return
+    }
 }
