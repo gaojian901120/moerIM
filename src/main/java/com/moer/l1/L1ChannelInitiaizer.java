@@ -1,6 +1,8 @@
 package com.moer.l1;
 
 import com.moer.common.HttpChannelInitializer;
+import com.moer.common.RequestHandler;
+import com.moer.l1.business.L1ActionHandler;
 import io.netty.channel.Channel;
 
 /**
@@ -13,6 +15,6 @@ public class L1ChannelInitiaizer extends HttpChannelInitializer {
     @Override
     protected void initChannel(Channel channel) throws Exception {
         super.initChannel(channel);
-        channel.pipeline().addLast(L1_REQUEST_HANDLER, new L1RequestHandler());
+        channel.pipeline().addLast(L1_REQUEST_HANDLER, new RequestHandler(new L1ActionHandler()));
     }
 }

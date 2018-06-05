@@ -49,9 +49,9 @@ public class ConfigUtil {
     public static ImConfig loadImConfig() {
         ImConfig imConfig = new ImConfig();
         ResourceBundle resourceBundle = ResourceBundle.getBundle("im");
-        imConfig.setMultiAppEnd(Boolean.valueOf(resourceBundle.getString("multiAppEnd")));
-        imConfig.setMultiWebEnd(Boolean.valueOf(resourceBundle.getString("multiWebEnd")));
-        imConfig.setMultiEnd(Boolean.valueOf(resourceBundle.getString("multiEnd")));
+        imConfig.setMultiAppEnd(Boolean.valueOf(resourceBundle.getString("im.multiAppEnd")));
+        imConfig.setMultiWebEnd(Boolean.valueOf(resourceBundle.getString("im.multiWebEnd")));
+        imConfig.setMultiEnd(Boolean.valueOf(resourceBundle.getString("im.multiEnd")));
         return imConfig;
     }
 }

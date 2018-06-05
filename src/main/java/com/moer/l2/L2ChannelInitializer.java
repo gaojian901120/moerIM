@@ -1,7 +1,8 @@
 package com.moer.l2;
 
+import com.moer.common.RequestHandler;
 import com.moer.config.NettyConfig;
-import com.moer.handler.PacketHandler;
+import com.moer.l2.business.L2ActionHandler;
 import com.moer.server.PushMessageServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -99,7 +100,7 @@ public class L2ChannelInitializer extends ChannelInitializer<Channel> {
         channel.pipeline().addLast(HTTP_REQUEST_DECODER, new HttpRequestDecoder()) //in bound http 解码器  netty自带的http协议解码器
                 .addLast(HTTP_AGGREGATOR, new HttpObjectAggregator(65536))
                 .addLast(HTTP_ENCODER, new HttpResponseEncoder())// outbound http编码器 netty 自带的http协议编码器
-                .addLast(PACKET_HANDLER, new PacketHandler(application));// 注意顺序 这个必须是在第一个
+                .addLast(PACKET_HANDLER, new RequestHandler(new L2ActionHandler()));// 注意顺序 这个必须是在第一个
 
 
 //        if (nettyConfig.isUseHttpCompress()) { //是否启用http压缩 gzip等

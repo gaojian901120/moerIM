@@ -38,15 +38,15 @@ public class L1EntryApplication {
         //连接zookeeper
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
         try {
-//            NodeManager nodeManager = NodeManager.getInstance();
-//            if (!nodeManager.init(zkConfig)) {
-//                return;
-//            }
-//            if (!nodeManager.createRootNode())
-//                return;
-//            if (!nodeManager.checkAndMonitorChildStat()) {
-//                return;
-//            }
+            NodeManager nodeManager = NodeManager.getInstance();
+            if (!nodeManager.init(zkConfig)) {
+                return;
+            }
+            if (!nodeManager.createRootNode())
+                return;
+            if (!nodeManager.checkAndMonitorChildStat()) {
+                return;
+            }
             //启动netty 服务 开始对外提供服务
             NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
             EventLoopGroup boss = null;

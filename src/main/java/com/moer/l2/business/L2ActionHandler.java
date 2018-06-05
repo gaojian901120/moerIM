@@ -1,6 +1,7 @@
 package com.moer.l2.business;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.common.ActionHandler;
 import com.moer.config.ImConfig;
 import com.moer.entity.ImSession;
 import com.moer.l1.bean.InitResponseBean;
@@ -20,9 +21,10 @@ import java.util.Map;
 
 /**
  * Created by gaoxuejian on 2018/5/19.
+ * 线程安全 所以单例就行了
  */
-public class ActionHandler {
-    public static Logger log = LoggerFactory.getLogger(ActionHandler.class);
+public class L2ActionHandler implements ActionHandler {
+    public static Logger logger = LoggerFactory.getLogger(L2ActionHandler.class);
 
     /**
      * GET /connect?uid=xxx&token=xxx
@@ -46,6 +48,7 @@ public class ActionHandler {
             // entry.getValue()是一个List, 只取第一个元素
             paramMap.put(entry.getKey(), entry.getValue().get(0));
         });
+        //@TODO uid不再通过参数传递  通过解密参数获取
         if (!paramMap.containsKey("uid") || !paramMap.containsKey("token")) {
             return renderResult(1001, "invalid request params", null);
         }
@@ -54,36 +57,35 @@ public class ActionHandler {
         NodeManager nodeManager = NodeManager.getInstance();
         String serverHash = nodeManager.getNodeHash();
         if (token != serverHash) {
-            return renderResult(1001, "invalid server node，please refresh serveri nfo", null);
+            return renderResult(1001, "invalid server node，please refresh server info", null);
         }
         //判断多端登录
         Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().userContext.getUserOnlineSession(uid);
         ImConfig imConfig = L2ApplicationContext.getInstance().imConfig;
-        if (imConfig.isMultiAppEnd() )
-//        InitResponseBean irb = new InitResponseBean();
-//        if (method.equals(HttpMethod.GET)) {
-//
-//            // GET /init?uid=100809070
-//            HttpHeaders headers = request.headers();
-//            String cookie = headers.get("Cookie");
-//            if (cookie != null && cookie.contains("_jm_ppt_id")) {
-//
-//                String uid = parmMap.get("uid");
-//                ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
-//                if (serverNode != null) {
-//                    irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
-//                    irb.token = "hello";
-//                    result = renderResult(1000, "success", irb);
-//                } else {
-//                    result = renderResult(1002, "no server to service", null);
-//                }
-//            } else {
-//                result = renderResult(1001, "user not login", null);
-//            }
-//
-//        } else {
-//            result = renderResult(1001, "user not login", null);
-//        }
+        if (imConfig.isMultiAppEnd()) {
+            InitResponseBean irb = new InitResponseBean();
+            if (method.equals(HttpMethod.GET)) {
+
+                // GET /init?uid=100809070
+                HttpHeaders headers = request.headers();
+                String cookie = headers.get("Cookie");
+                if (cookie != null && cookie.contains("_jm_ppt_id")) {
+                    ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
+                    if (serverNode != null) {
+                        irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
+                        irb.token = "hello";
+                        result = renderResult(1000, "success", irb);
+                    } else {
+                        result = renderResult(1002, "no server to service", null);
+                    }
+                } else {
+                    result = renderResult(1001, "user not login", null);
+                }
+
+            } else {
+                result = renderResult(1001, "user not login", null);
+            }
+        }
         return result;
     }
 

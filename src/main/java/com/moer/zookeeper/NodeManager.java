@@ -1,15 +1,13 @@
 package com.moer.zookeeper;
 
 import com.moer.common.Constant;
+import com.moer.util.CryptUtil;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -75,7 +73,8 @@ public class NodeManager implements Watcher {
         try {
             if (createRootNode()) {
                 //创建该节点的子节点
-                zk.create(String.format("%s/%s%s:%s", Constant.ZK_IM_ROOT_NODE_NAME, Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port), ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                String path = String.format("%s/%s%s:%s", Constant.ZK_IM_ROOT_NODE_NAME, Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
+                zk.create(path, ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 return true;
             } else {
                 return false;
@@ -113,9 +112,9 @@ public class NodeManager implements Watcher {
             List<String> children = zk.getChildren(Constant.ZK_IM_ROOT_NODE_NAME, this);//watcher 删除本节点或者创建删除子节点触发  getData 删除节点 设置数据
             if (children != null && children.size() > 0) {
                 for (String childPath : children) {
-                    byte[] childDataB = zk.getData(childPath, this, null);
+                    byte[] childDataB = zk.getData(Constant.ZK_IM_ROOT_NODE_NAME + "/" + childPath, this, null);
                     String childDataS = new String(childDataB);
-                    if (!childDataS.equals(ServerNode.L1_ACCEPT)) {
+                    if (!childDataS.equals(ServerNode.L2_ACCEPT)) {
                         logger.error(String.format("child node %s stat %s not vaild, server start failed", childPath, childDataS));
                         checkRes = false;
                         break;
@@ -136,6 +135,7 @@ public class NodeManager implements Watcher {
 
     public void addServerNode(ServerNode node) {
         realNodeList.add(node);
+        Collections.sort(realNodeList);
         IntStream.range(0, VITRUAL_NODE_NUM)
                 .forEach(index -> {
                     int hash = getHash(String.valueOf(node.getName() + VITRUAL_SEPARTOR + index));
@@ -183,11 +183,15 @@ public class NodeManager implements Watcher {
 
     /**
      * 获取所有服务节点的hash值
-     *
+     * 排序好 保证同样的节点 顺序不同 hash值不会有影响
      * @return
      */
     public String getNodeHash() {
-        return null;
+        StringBuffer sb = new StringBuffer();
+        for (ServerNode sn : realNodeList) {
+            sb.append(sn.getName());
+        }
+        return CryptUtil.md5(sb.toString());
     }
 
 }

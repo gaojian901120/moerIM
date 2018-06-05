@@ -41,11 +41,6 @@ public class ImSession {
      * 会话对应的用户uid
      */
     private Integer uid;
-    /**
-     * 验证当前会话有效性的token
-     * token对应的生成规则=hash(sessionid+time+uid)
-     */
-    private String token;
     //从那个端连接上来的
     private String source;
 
@@ -67,4 +62,9 @@ public class ImSession {
     public String getSource() {
         return source;
     }
+
+    /**
+     * 0 正常 1 需要剔除登陆 原因是不满足多端登陆
+     */
+    public int status;
 }
