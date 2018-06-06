@@ -37,18 +37,18 @@ public class L1EntryApplication {
     public static void main(String[] args) {
         //连接zookeeper
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
+        NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
+
         try {
             NodeManager nodeManager = NodeManager.getInstance();
-            if (!nodeManager.init(zkConfig)) {
-                return;
-            }
+            nodeManager.init(zkConfig, nettyConfig);
             if (!nodeManager.createRootNode())
                 return;
-            if (!nodeManager.checkAndMonitorChildStat()) {
+            if (!nodeManager.createNode("master", nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort())))
                 return;
-            }
+            if (!nodeManager.checkAndMonitorChildStat())
+                return;
             //启动netty 服务 开始对外提供服务
-            NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
             EventLoopGroup boss = null;
             EventLoopGroup worker = null;
             ServerBootstrap serverBootstrap = new ServerBootstrap();

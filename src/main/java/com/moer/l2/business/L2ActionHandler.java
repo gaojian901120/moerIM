@@ -56,7 +56,7 @@ public class L2ActionHandler implements ActionHandler {
         String token = paramMap.get("token");
         NodeManager nodeManager = NodeManager.getInstance();
         String serverHash = nodeManager.getNodeHash();
-        if (token != serverHash) {
+        if (!token.equals(serverHash)) {
             return renderResult(1001, "invalid server node，please refresh server info", null);
         }
         //判断多端登录

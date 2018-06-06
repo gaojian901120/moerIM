@@ -1,7 +1,9 @@
 package com.moer.zookeeper;
 
 import com.moer.common.Constant;
+import com.moer.config.NettyConfig;
 import com.moer.util.CryptUtil;
+import com.sun.corba.se.spi.activation.Server;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -19,9 +21,10 @@ public class NodeManager implements Watcher {
     //每个物理节点对应的虚拟节点的数目，这里假设每台机器的配置一样 所以设置为20 实际上应该根据服务器的配置进行调整。每个物理节点对应的虚拟节点数量越多，平衡性越好，但是性能会稍微有些下降
     private static int VITRUAL_NODE_NUM = 20;
     private static String VITRUAL_SEPARTOR = "##";
+    public ServerNode l1ServerNode;
     public volatile List<ServerNode> realNodeList = new LinkedList<ServerNode>();
     public volatile SortedMap<Integer, String> vitrualNode = new TreeMap<Integer, String>();
-
+    private NettyConfig nettyConfig;
     private ZkConfig zkConfig;
     private ZooKeeper zk;
 
@@ -30,15 +33,17 @@ public class NodeManager implements Watcher {
     }
 
     private NodeManager() {
+        l1ServerNode = new ServerNode();
     }
 
     public final static NodeManager getInstance() {
         return NodeManagerHolder.instance;
     }
 
-    public boolean init(ZkConfig config) {
+    public boolean init(ZkConfig config, NettyConfig nconfig) {
         try {
             zkConfig = new ZkConfig(config);
+            nettyConfig = new NettyConfig(nconfig);
             zk = new ZooKeeper(zkConfig.getHost() + ":" + zkConfig.getPort(), 3000, this);
             return true;
         } catch (Exception e) {
@@ -46,6 +51,7 @@ public class NodeManager implements Watcher {
             return false;
         }
     }
+
 
     /**
      * FNV1_32_HASH hash算法
@@ -69,18 +75,22 @@ public class NodeManager implements Watcher {
         return hash;
     }
 
-    public boolean createChildNode(String name, String port) {
+    public boolean createNode(String type, String name, String port) {
         try {
-            if (createRootNode()) {
-                //创建该节点的子节点
-                String path = String.format("%s/%s%s:%s", Constant.ZK_IM_ROOT_NODE_NAME, Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
+            //创建该节点的子节点
+            if (type.equals("master")) {
+                String path = String.format("%s:%s:%s", Constant.ZK_IM_MASTER_NODE_NAME_PREFIX, name, port);
+                zk.create(path, ServerNode.L1_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                return true;
+            } else if (type.equals("child")) {
+                String path = String.format("%s:%s:%s", Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
                 zk.create(path, ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 return true;
             } else {
                 return false;
             }
         } catch (Exception e) {
-            logger.error(String.format("init child node: %s, port: %s failed with excetion: %s", name, port, e.getMessage()));
+            logger.error(String.format("init  node: %s, port: %s failed with excetion: %s", name, port, e.getMessage()));
             return false;
         }
     }
@@ -94,7 +104,7 @@ public class NodeManager implements Watcher {
             }
             return true;
         } catch (Exception e) {
-            logger.error(String.format("init root failed with exception: %s", e.getMessage()));
+            logger.error(String.format("init root /moer_im failed with exception: %s", e.getMessage()));
             return false;
         }
     }
@@ -112,15 +122,18 @@ public class NodeManager implements Watcher {
             List<String> children = zk.getChildren(Constant.ZK_IM_ROOT_NODE_NAME, this);//watcher 删除本节点或者创建删除子节点触发  getData 删除节点 设置数据
             if (children != null && children.size() > 0) {
                 for (String childPath : children) {
-                    byte[] childDataB = zk.getData(Constant.ZK_IM_ROOT_NODE_NAME + "/" + childPath, this, null);
-                    String childDataS = new String(childDataB);
-                    if (!childDataS.equals(ServerNode.L2_ACCEPT)) {
-                        logger.error(String.format("child node %s stat %s not vaild, server start failed", childPath, childDataS));
-                        checkRes = false;
-                        break;
-                    }
                     String[] pathArr = childPath.split(":");
-                    addServerNode(new ServerNode(pathArr[1], Integer.valueOf(pathArr[2]), childPath));
+
+                    //master节点
+                    if (childPath.contains("master")) {
+                        l1ServerNode.setPort(Integer.valueOf(pathArr[2]));
+                        l1ServerNode.setHost(pathArr[1]);
+                        l1ServerNode.setName(l1ServerNode.getName() + ":" + l1ServerNode.getPort());
+                    } else {
+                        //child节点
+                        addServerNode(new ServerNode(pathArr[1], Integer.valueOf(pathArr[2]), childPath));
+                    }
+
                 }
             } else {
                 logger.error("child node not init, start failed");
@@ -132,6 +145,7 @@ public class NodeManager implements Watcher {
         }
         return checkRes;
     }
+
 
     public void addServerNode(ServerNode node) {
         realNodeList.add(node);

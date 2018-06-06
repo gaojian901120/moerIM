@@ -13,6 +13,10 @@ public class ServerNode implements Comparable<ServerNode> {
     private int port;
     private String name;
 
+    public ServerNode() {
+    }
+
+    ;
     public ServerNode(String host, int port, String name) {
         this.host = host;
         this.port = port;
