@@ -22,7 +22,7 @@ public class NodeManager implements Watcher {
     private static int VITRUAL_NODE_NUM = 20;
     private static String VITRUAL_SEPARTOR = "##";
     public ServerNode l1ServerNode;
-    public volatile List<ServerNode> realNodeList = new LinkedList<ServerNode>();
+    public volatile SortedMap<String, ServerNode> realNodeList = new TreeMap<>();
     public volatile SortedMap<Integer, String> vitrualNode = new TreeMap<Integer, String>();
     private NettyConfig nettyConfig;
     private ZkConfig zkConfig;
@@ -79,11 +79,11 @@ public class NodeManager implements Watcher {
         try {
             //创建该节点的子节点
             if (type.equals("master")) {
-                String path = String.format("%s:%s:%s", Constant.ZK_IM_MASTER_NODE_NAME_PREFIX, name, port);
+                String path = String.format("%s%s:%s", Constant.ZK_IM_MASTER_NODE_NAME_PREFIX, name, port);
                 zk.create(path, ServerNode.L1_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 return true;
             } else if (type.equals("child")) {
-                String path = String.format("%s:%s:%s", Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
+                String path = String.format("%s%s:%s", Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
                 zk.create(path, ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 return true;
             } else {
@@ -122,18 +122,7 @@ public class NodeManager implements Watcher {
             List<String> children = zk.getChildren(Constant.ZK_IM_ROOT_NODE_NAME, this);//watcher 删除本节点或者创建删除子节点触发  getData 删除节点 设置数据
             if (children != null && children.size() > 0) {
                 for (String childPath : children) {
-                    String[] pathArr = childPath.split(":");
-
-                    //master节点
-                    if (childPath.contains("master")) {
-                        l1ServerNode.setPort(Integer.valueOf(pathArr[2]));
-                        l1ServerNode.setHost(pathArr[1]);
-                        l1ServerNode.setName(l1ServerNode.getName() + ":" + l1ServerNode.getPort());
-                    } else {
-                        //child节点
-                        addServerNode(new ServerNode(pathArr[1], Integer.valueOf(pathArr[2]), childPath));
-                    }
-
+                    syncAddZkInfo(childPath);
                 }
             } else {
                 logger.error("child node not init, start failed");
@@ -146,24 +135,49 @@ public class NodeManager implements Watcher {
         return checkRes;
     }
 
+    public void syncAddZkInfo(String path) {
+        String[] pathArr = path.split(":");
+        //master节点
+        if (path.contains("master")) {
+            l1ServerNode.setPort(Integer.valueOf(pathArr[2]));
+            l1ServerNode.setHost(pathArr[1]);
+            l1ServerNode.setName(l1ServerNode.getName() + ":" + l1ServerNode.getPort());
+        } else if (path.contains("child")) {
+            //child节点
+            addServerNode(new ServerNode(pathArr[1], Integer.valueOf(pathArr[2]), path));
+        }
+        try {
+            Stat stat = zk.exists(Constant.ZK_IM_ROOT_NODE_NAME + "/" + path, this);
+        } catch (Exception e) {
+
+        }
+
+    }
 
     public void addServerNode(ServerNode node) {
-        realNodeList.add(node);
-        Collections.sort(realNodeList);
+        realNodeList.putIfAbsent(node.getName(), node);
         IntStream.range(0, VITRUAL_NODE_NUM)
                 .forEach(index -> {
                     int hash = getHash(String.valueOf(node.getName() + VITRUAL_SEPARTOR + index));
                     vitrualNode.put(hash, node.getName());
                 });
+        System.out.println(nettyConfig.getPort() + "当前服务节点：");
+        for (Map.Entry<String, ServerNode> sn : realNodeList.entrySet()) {
+            System.out.println(sn.getValue().getName());
+        }
     }
 
     public void deleteServerNode(ServerNode node) {
-        realNodeList.removeIf(o -> node.getName().equals(o.getName()));
+        realNodeList.remove(node.getName());
         IntStream.range(0, VITRUAL_NODE_NUM)
                 .forEach(index -> {
                     int hash = getHash(String.valueOf(node.getName() + VITRUAL_SEPARTOR + index));
                     vitrualNode.remove(hash);
                 });
+        System.out.println(nettyConfig.getPort() + "当前服务节点：");
+        for (Map.Entry<String, ServerNode> sn : realNodeList.entrySet()) {
+            System.out.println(sn.getValue().getName());
+        }
     }
 
     public ServerNode getServerNode(int uid) {
@@ -183,12 +197,34 @@ public class NodeManager implements Watcher {
         return sn;
     }
 
+    //@TODO  添加自定义关闭的操作
     public void process(WatchedEvent watchedEvent) {
+        System.out.println("++++++++++++++++++++++++++++" + watchedEvent.toString());
         try {
-            System.out.println(watchedEvent.toString());
-            zk.getChildren("/test", this);
+            String path = watchedEvent.getPath();
+            Event.KeeperState keepState = watchedEvent.getState();
+            Event.EventType eventType = watchedEvent.getType();
+            if (path != null) {
+                if (path.length() > Constant.ZK_IM_ROOT_NODE_NAME.length()) { //子节点
+                    if (eventType == Event.EventType.NodeCreated) {
+                        System.out.println("-----------------NodeCreated---" + path);
+                        syncAddZkInfo(path);
+                    } else if (eventType == Event.EventType.NodeDeleted) {
+                        if (path.contains("child")) {
+                            String[] pathArr = path.split(":");
+                            System.out.println("-----------------NodeDeleted---" + path);
+                            deleteServerNode(new ServerNode(pathArr[1], Integer.valueOf(pathArr[2]), path.substring(Constant.ZK_IM_ROOT_NODE_NAME.length() + 1)));
+                        }
+                    }
+                } else if (path.equals(Constant.ZK_IM_ROOT_NODE_NAME)) {//只方便处理新增子节点的情况
+                    System.out.println("-----------------Root Node Changed---" + path);
+
+                    checkAndMonitorChildStat();
+                }
+            }
         } catch (Exception e) {
         }
+
     }
 
     public ZooKeeper getZk() {
@@ -202,8 +238,8 @@ public class NodeManager implements Watcher {
      */
     public String getNodeHash() {
         StringBuffer sb = new StringBuffer();
-        for (ServerNode sn : realNodeList) {
-            sb.append(sn.getName());
+        for (Map.Entry<String, ServerNode> sn : realNodeList.entrySet()) {
+            sb.append(sn.getValue().getName());
         }
         return CryptUtil.md5(sb.toString());
     }

@@ -19,6 +19,10 @@ import java.util.HashMap;
  */
 public class ImSession {
     public static final String sessionCode = "fgviunfkls8wemzdwen7q2";
+    public static final int SESSION_STATUS_NORMAL = 1;
+    public static final int SESSION_STATUS_EXPIRE = 2;//过期 表示多端登陆 被踢掉的一个会话
+    public static final String SESSION_SOURCE_WEB = "web";
+    public static final String SESSION_SOURCE_APP = "app";
     /**
      * 待推送到客户端的消息队列
      *
@@ -32,7 +36,7 @@ public class ImSession {
     /**
      * 会话建立的时间
      */
-    private String createTime;
+    private long createTime;
     /**
      * 当前会话所对应的连接
      */
@@ -44,11 +48,6 @@ public class ImSession {
     //从那个端连接上来的
     private String source;
 
-    public String getSessionid()
-    {
-        seeesionId = CryptUtil.str2HexStr(uid + sessionCode + createTime);
-        return seeesionId;
-    }
     public Map<String, String> decodeSessionId(String seeesionId)
     {
         String decodeSessionId = CryptUtil.hexStr2Str(seeesionId);
@@ -67,4 +66,60 @@ public class ImSession {
      * 0 正常 1 需要剔除登陆 原因是不满足多端登陆
      */
     public int status;
+
+    public static String getSessionCode() {
+        return sessionCode;
+    }
+
+    public String getSeeesionId() {
+        return seeesionId;
+    }
+
+    public void setSeeesionId(String seeesionId) {
+        this.seeesionId = seeesionId;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
+
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public List<ImMessage> getMsgQueue() {
+        return msgQueue;
+    }
+
+    public void setMsgQueue(List<ImMessage> msgQueue) {
+        this.msgQueue = msgQueue;
+    }
 }

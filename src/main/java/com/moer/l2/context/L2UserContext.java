@@ -30,7 +30,7 @@ public class L2UserContext {
             Map<String, ImSession> oldMap = onlineUserMap.putIfAbsent(uid,sessionMap);
             if (oldMap!=null) sessionMap = oldMap;
         }
-        sessionMap.put(imSession.getSessionid(),imSession);
+        sessionMap.put(imSession.getSeeesionId(), imSession);
     }
 
     /**
@@ -40,10 +40,10 @@ public class L2UserContext {
      */
     public boolean delOnlineUserSession(ImSession imSession)
     {
-        Map<String,String> map = imSession.decodeSessionId(imSession.getSessionid());
+        Map<String, String> map = imSession.decodeSessionId(imSession.getSeeesionId());
         int uid = Integer.valueOf(map.get("uid"));
         Map<String,ImSession> sessionMap = onlineUserMap.get(uid);
-        sessionMap.remove(imSession.getSessionid());
+        sessionMap.remove(imSession.getSeeesionId());
         if (sessionMap.size() == 0) {
             return true;
         }

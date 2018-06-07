@@ -51,4 +51,5 @@ public class ServerNode implements Comparable<ServerNode> {
     public int compareTo(ServerNode o) {
         return this.name.compareTo(o.getName());
     }
+
 }

@@ -36,18 +36,20 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
             } catch (Exception e) {
                 response = "request exception: " + e.getMessage();
             }
-            byte[] responseB = new byte[0];
-            try {
-                responseB = response.getBytes("UTF-8");
-            } catch (Exception e) {
-                logger.error("encode response {} error with exception : {}", responseB, e.getMessage());
+            if (!response.equals("asynchandle")) {
+                byte[] responseB = new byte[0];
+                try {
+                    responseB = response.getBytes("UTF-8");
+                } catch (Exception e) {
+                    logger.error("encode response {} error with exception : {}", responseB, e.getMessage());
+                }
+                FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
+                httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
+                httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
+                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                ctx.write(httpResponse);
+                ctx.flush();
             }
-            FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
-            httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
-            httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
-            httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-            ctx.write(httpResponse);
-            ctx.flush();
         }
     }
 }

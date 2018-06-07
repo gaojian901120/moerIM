@@ -16,13 +16,14 @@ public class L2ServiceApplication {
     public static void main(String[] args) throws Exception {
         //读取配置信息
         String host = "127.0.0.1";
-        int port = 9001;
+        int port = 9002;
         NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
         nettyConfig.setHostName(host);
         nettyConfig.setPort(port);
         RedisConfig redisConfig = ConfigUtil.loadRedisConfig();
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
         L2ApplicationContext.getInstance().imConfig = ConfigUtil.loadImConfig();
+        L2ApplicationContext.getInstance().nettyConfig = nettyConfig;
         NodeManager nodeManager = NodeManager.getInstance();
         nodeManager.init(zkConfig, nettyConfig);
         if (!nodeManager.createRootNode())

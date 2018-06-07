@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Created by gaoxuejian on 2018/5/19.
  */
-public class L1ActionHandler implements ActionHandler {
+public class L1ActionHandler extends ActionHandler {
     public static Logger logger = LoggerFactory.getLogger(L1ActionHandler.class);
 
 

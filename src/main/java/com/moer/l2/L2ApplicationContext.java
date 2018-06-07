@@ -1,6 +1,7 @@
 package com.moer.l2;
 
 import com.moer.config.ImConfig;
+import com.moer.config.NettyConfig;
 import com.moer.l2.context.L2GroupContext;
 import com.moer.l2.context.L2UserContext;
 
@@ -20,9 +21,8 @@ public class L2ApplicationContext {
     private L2ApplicationContext() {
     }
 
-    ;
-
-    public L2UserContext userContext;
-    public L2GroupContext groupContext;
+    public L2UserContext userContext = new L2UserContext();
+    public L2GroupContext groupContext = new L2GroupContext();
     public ImConfig imConfig;
+    public NettyConfig nettyConfig;
 }
