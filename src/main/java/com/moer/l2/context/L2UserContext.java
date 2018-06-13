@@ -17,42 +17,6 @@ public class L2UserContext {
      */
     private Map<Integer, Map<String,ImSession>> onlineUserMap = new ConcurrentHashMap<>();
 
-    /**
-     * 用户加入的所有的群组
-     */
-    private Map<Integer, Map> onlineUserGroupMap = new ConcurrentHashMap<>();
 
-    public void addOnlineUserSession(int uid, ImSession imSession)
-    {
-        Map<String,ImSession> sessionMap = onlineUserMap.get(uid);
-        if (sessionMap == null) {
-            sessionMap = new ConcurrentHashMap<>();
-            Map<String, ImSession> oldMap = onlineUserMap.putIfAbsent(uid,sessionMap);
-            if (oldMap!=null) sessionMap = oldMap;
-        }
-        sessionMap.put(imSession.getSeeesionId(), imSession);
-    }
 
-    /**
-     *
-     * @param imSession
-     * @return true 表示用户不在线 false 表示用户在线
-     */
-    public boolean delOnlineUserSession(ImSession imSession)
-    {
-        Map<String, String> map = imSession.decodeSessionId(imSession.getSeeesionId());
-        int uid = Integer.valueOf(map.get("uid"));
-        Map<String,ImSession> sessionMap = onlineUserMap.get(uid);
-        sessionMap.remove(imSession.getSeeesionId());
-        if (sessionMap.size() == 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public Map<String,ImSession> getUserOnlineSession(Integer uid)
-    {
-        return onlineUserMap.get(uid);
-
-    }
 }

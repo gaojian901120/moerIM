@@ -1,8 +1,12 @@
 package com.moer.entity;
 
+import com.moer.bean.GroupInfo;
+import com.moer.bean.GroupMembers;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by gaoxuejian on 2018/5/7.
@@ -16,7 +20,7 @@ public class ImUser {
     /**
      * 用户当前 对应连接的session
      */
-    List<ImSession> sessions;
+    Map<String, ImSession> sessions;
 
     /**
      * 用户的未读消息数
@@ -31,7 +35,7 @@ public class ImUser {
     /**
      * 用户订阅的群聊列表
      */
-    Map<Integer, ImGroup> groupMap = new HashMap<Integer, ImGroup>();
+    Map<Integer, GroupInfo> groupMap = new HashMap<Integer, GroupInfo>();
 
 
 }
