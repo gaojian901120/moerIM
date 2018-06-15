@@ -1,7 +1,10 @@
 package com.moer.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
+import com.moer.entity.ImUser;
+import com.moer.l2.L2ApplicationContext;
 import com.moer.server.PushMessageServer;
 import com.moer.store.GroupStore;
 import com.moer.store.UserStore;
@@ -11,6 +14,7 @@ import io.netty.handler.codec.http.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,12 +23,10 @@ import java.util.Set;
 public class MessageDispatchHandler implements Runnable, Comparable<MessageDispatchHandler> {
     private int priority;
     private ImMessage imMessage;
-    private PushMessageServer application;
 
-    public MessageDispatchHandler(int priority, ImMessage imMessage, PushMessageServer app) {
+    public MessageDispatchHandler(int priority, ImMessage imMessage) {
         this.priority = priority;
         this.imMessage = imMessage;
-        this.application = app;
     }
 
     public int getPriority() {
@@ -47,9 +49,8 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
         //分发消息到不同的连接层节点
         int sender = imMessage.getSend();
         int recver = imMessage.getRecv();
-        //目前只有直播间
-        GroupStore groupStore = application.getGroupStore();
-        UserStore userStore = application.getUserStore();
+        Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
+        Map<Integer, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
         Set<Integer> onlineGroupUser = groupStore.getAllGroupOnlineUser(recver);
         for (Integer uid : onlineGroupUser) {
             List<ImMessage> messageList = new ArrayList<ImMessage>();

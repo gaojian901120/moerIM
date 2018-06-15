@@ -2,6 +2,7 @@ package com.moer.l2;
 
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
+import com.moer.entity.ImGroup;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
 
@@ -25,20 +26,22 @@ public class L2ApplicationContext {
     private L2ApplicationContext() {
     }
 
-    public Map<Integer, ImUser> IMUserContext = new HashMap<>();
+    public Map<Integer, ImUser> IMUserContext = new ConcurrentHashMap<>();
+    public Map<Integer, ImGroup> IMGroupContext = new ConcurrentHashMap<>();
     public ImConfig imConfig;
     public NettyConfig nettyConfig;
 
     public void addOnlineUserSession(int uid, ImSession imSession) {
         ImUser imUser = IMUserContext.get(uid);
-        Map<>
+        Map<String, ImSession> sessionMap = null;
         if (imUser == null) {
-
+            imUser = new ImUser();
+            ImUser oldUser = IMUserContext.putIfAbsent(uid,imUser);
+            if (oldUser != null) imUser = oldUser;
         }
+        sessionMap = imUser.getSessions();
         if (sessionMap == null) {
             sessionMap = new ConcurrentHashMap<>();
-            Map<String, ImSession> oldMap = sessions.putIfAbsent(uid, sessionMap);
-            if (oldMap != null) sessionMap = oldMap;
         }
         sessionMap.put(imSession.getSeeesionId(), imSession);
     }
@@ -50,15 +53,20 @@ public class L2ApplicationContext {
     public boolean delOnlineUserSession(ImSession imSession) {
         Map<String, String> map = imSession.decodeSessionId(imSession.getSeeesionId());
         int uid = Integer.valueOf(map.get("uid"));
-        Map<String, ImSession> sessionMap = sessions.get(uid);
-        sessionMap.remove(imSession.getSeeesionId());
-        if (sessionMap.size() == 0) {
-            return true;
+        ImUser imUser = IMUserContext.get(uid);
+        if (imUser != null) {
+            Map<String, ImSession> sessionMap = imUser.getSessions();
+            if (sessionMap!=null && sessionMap.size() > 0) {
+                sessionMap.remove(imSession.getSeeesionId());
+            }
         }
-        return false;
     }
 
     public Map<String, ImSession> getUserOnlineSession(Integer uid) {
-        return onlineUserMap.get(uid);
+        ImUser imUser = IMUserContext.get(uid);
+        if (imUser != null) {
+            return imUser.getSessions();
+        }
+        return null;
     }
 }

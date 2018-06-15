@@ -19,8 +19,9 @@ public class ImUser {
 
     /**
      * 用户当前 对应连接的session
+     * 一般一个用户同时最多几个连接 不需要太多考虑多线程读写该map的场景
      */
-    Map<String, ImSession> sessions;
+    private Map<String, ImSession> sessions =  new ConcurrentHashMap<>();
 
     /**
      * 用户的未读消息数
@@ -37,5 +38,7 @@ public class ImUser {
      */
     Map<Integer, GroupInfo> groupMap = new HashMap<Integer, GroupInfo>();
 
-
+    public Map<String, ImSession> getSessions() {
+        return sessions;
+    }
 }

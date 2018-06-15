@@ -36,7 +36,7 @@ public class L2ServiceApplication {
         Future future = nettyServer.start();
         nettyServer.initData();
 
-        RedisMessageHandler messageListener = new RedisMessageHandler(nettyServer);
+        RedisMessageHandler messageListener = new RedisMessageHandler();
         RedisStore redisStore = new RedisStore(redisConfig);
         redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
         future.sync();
