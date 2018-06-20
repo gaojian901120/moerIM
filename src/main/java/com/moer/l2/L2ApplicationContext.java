@@ -60,6 +60,7 @@ public class L2ApplicationContext {
                 sessionMap.remove(imSession.getSeeesionId());
             }
         }
+        return  true;
     }
 
     public Map<String, ImSession> getUserOnlineSession(Integer uid) {

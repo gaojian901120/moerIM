@@ -77,7 +77,7 @@ public class L2ActionHandler extends ActionHandler {
         imSession.setStatus(ImSession.SESSION_STATUS_NORMAL);
         imSession.setSeeesionId(CryptUtil.str2HexStr(uid + ImSession.sessionCode + System.currentTimeMillis()));
         //判断多端登录
-        Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().userContext.getUserOnlineSession(uid);
+        Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
         ImConfig imConfig = L2ApplicationContext.getInstance().imConfig;
         NettyConfig nettyConfig = L2ApplicationContext.getInstance().nettyConfig;
         if (!imConfig.isMultiAppEnd() && source.equals(ImSession.SESSION_SOURCE_APP)) { //保证app只有一个用户可以登录
@@ -115,7 +115,7 @@ public class L2ActionHandler extends ActionHandler {
                 onlineSession = new HashMap<>();
             }
             onlineSession.put(imSession.getSeeesionId(), imSession);
-            L2ApplicationContext.getInstance().userContext.addOnlineUserSession(uid, imSession);
+            L2ApplicationContext.getInstance().addOnlineUserSession(uid, imSession);
             result = renderResult(1000, "connect success", imSession.getSeeesionId());
         } else {
             result = renderResult(1002, "the user request the error service node", null);
@@ -150,7 +150,7 @@ public class L2ActionHandler extends ActionHandler {
         }
         int uid = Integer.valueOf(paramMap.get("uid"));
         String sessionId = paramMap.get("sessionid");
-        Map<String, ImSession> sessionMap = L2ApplicationContext.getInstance().userContext.getUserOnlineSession(uid);
+        Map<String, ImSession> sessionMap = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
         if (sessionMap == null || !sessionMap.containsKey(sessionId)) {
             return renderResult(1001, "please connect the server node first", null);
         }
