@@ -7,7 +7,9 @@ import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -28,6 +30,7 @@ public class L2ApplicationContext {
 
     public Map<Integer, ImUser> IMUserContext = new ConcurrentHashMap<>();
     public Map<Integer, ImGroup> IMGroupContext = new ConcurrentHashMap<>();
+    public TimerThread timerThread = new TimerThread();
     public ImConfig imConfig;
     public NettyConfig nettyConfig;
 
@@ -69,5 +72,14 @@ public class L2ApplicationContext {
             return imUser.getSessions();
         }
         return null;
+    }
+
+    /**
+     * 注销用户 清理用户在线数据
+     * @TODO
+     */
+    public void logout(ImSession imSession)
+    {
+
     }
 }

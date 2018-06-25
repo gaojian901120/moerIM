@@ -73,6 +73,7 @@ public class L2ActionHandler extends ActionHandler {
         imSession.setChannel(context.channel());
         imSession.setUid(uid);
         imSession.setCreateTime(System.currentTimeMillis());
+        imSession.setUpdateTime(System.currentTimeMillis());
         imSession.setSource(source);
         imSession.setStatus(ImSession.SESSION_STATUS_NORMAL);
         imSession.setSeeesionId(CryptUtil.str2HexStr(uid + ImSession.sessionCode + System.currentTimeMillis()));
@@ -156,6 +157,11 @@ public class L2ActionHandler extends ActionHandler {
         }
 
         ImSession imSession = sessionMap.get(sessionId);
+        if (imSession.getChannel().isActive()){ //@TODO 说明当前有节点连接
+            return renderResult(1001, "failed", "other user connect with this session");
+        }
+        // 更新session活跃时间
+        imSession.setUpdateTime(System.currentTimeMillis());
         List<ImMessage> messageList = imSession.getMsgQueue();
         if (messageList != null && messageList.size() > 0) {
             return renderResult(1000, "success", JSON.toJSON(messageList));

@@ -19,7 +19,7 @@ import java.util.HashMap;
  */
 public class ImSession {
     public static final String sessionCode = "fgviunfkls8wemzdwen7q2";
-    public static final int SESSION_STATUS_NORMAL = 1;
+    public static final int SESSION_STATUS_NORMAL = 1;//任一一个为1 则表示用户在线
     public static final int SESSION_STATUS_EXPIRE = 2;//过期 表示多端登陆 被踢掉的一个会话
     public static final String SESSION_SOURCE_WEB = "web";
     public static final String SESSION_SOURCE_APP = "app";
@@ -41,6 +41,9 @@ public class ImSession {
      * 当前会话所对应的连接
      */
     private Channel channel;
+
+    private long updateTime;
+
     /**
      * 会话对应的用户uid
      */
@@ -95,6 +98,14 @@ public class ImSession {
         this.createTime = createTime;
     }
 
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
     public Integer getUid() {
         return uid;
     }
@@ -121,5 +132,13 @@ public class ImSession {
 
     public void setMsgQueue(List<ImMessage> msgQueue) {
         this.msgQueue = msgQueue;
+    }
+
+    /**
+     * 退出登录  可能是主动或者被动退出
+     */
+    public void logout()
+    {
+
     }
 }

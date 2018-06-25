@@ -75,7 +75,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 continue;
             }
             Map<String,ImSession> userSessions = imUserContext.get(uid).getSessions();
-            //说明用户不在线 @TODO 直接清理用户在线数据
+            //说明用户不在线 @TODO 直接清理用户在线数据 并更新未读消息数据
             if (userSessions == null  || userSessions.size() == 0){
                 continue;
             }
