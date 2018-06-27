@@ -3,9 +3,7 @@ package com.moer.entity;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,7 +29,7 @@ public class ImUser {
     /**
      * 未读消息数详情
      */
-    Map<String, ImMessage> unReadDetail = new HashMap<String, ImMessage>();
+   Queue<ImMessage> unReadDetail = new LinkedList<>();
 
     /**
      * 用户订阅的群聊列表
@@ -40,5 +38,43 @@ public class ImUser {
 
     public Map<String, ImSession> getSessions() {
         return sessions;
+    }
+
+    public void setSessions(Map<String, ImSession> sessions) {
+        this.sessions = sessions;
+    }
+
+    public int getUnReadMsgNum() {
+        return unReadMsgNum;
+    }
+
+    public void setUnReadMsgNum(int unReadMsgNum) {
+        this.unReadMsgNum = unReadMsgNum;
+    }
+
+    public Queue<ImMessage> getUnReadDetail() {
+        return unReadDetail;
+    }
+
+    public void setUnReadDetail(Queue<ImMessage> unReadDetail) {
+        this.unReadDetail = unReadDetail;
+    }
+
+    public Map<Integer, GroupInfo> getGroupMap() {
+        return groupMap;
+    }
+
+    public void setGroupMap(Map<Integer, GroupInfo> groupMap) {
+        this.groupMap = groupMap;
+    }
+
+    public void newUnreadMsg(ImMessage imMessage)
+    {
+        unReadMsgNum++;
+        unReadDetail.add(imMessage);
+        if (unReadDetail.size() > 20){
+            unReadDetail.poll();
+        }
+
     }
 }

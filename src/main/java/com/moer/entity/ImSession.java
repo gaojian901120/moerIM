@@ -134,11 +134,4 @@ public class ImSession {
         this.msgQueue = msgQueue;
     }
 
-    /**
-     * 退出登录  可能是主动或者被动退出
-     */
-    public void logout()
-    {
-
-    }
 }

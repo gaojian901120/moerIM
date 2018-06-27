@@ -67,38 +67,31 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             imGroupContext.put(recver,targetGroup);
             logger.info("init group {} ",recver);
         }
-        Map<Integer,GroupMembers> onlineMap = targetGroup.userList;
+        Map<Integer,GroupMembers> memberMap = targetGroup.userList;
         Map<Integer,GroupMembers> blackMap = targetGroup.blackList;
-        for (GroupMembers members : onlineMap.values()) {
+        for (GroupMembers members : memberMap.values()) {
             int uid = members.getUid();
             if (blackMap.containsKey(uid)){
                 continue;
             }
             Map<String,ImSession> userSessions = imUserContext.get(uid).getSessions();
-            //说明用户不在线 @TODO 直接清理用户在线数据 并更新未读消息数据
+            //说明用户不在线
             if (userSessions == null  || userSessions.size() == 0){
+                imUserContext.get(uid).newUnreadMsg(imMessage);
                 continue;
             }
             for (ImSession session : userSessions.values()){
                 Channel channel = session.getChannel();
-                if (channel != null && channel.isOpen()) {
-                    try {
-                        List<ImMessage> imMessages = session.getMsgQueue();
-                        if (imMessages == null){
-                            imMessages = new ArrayList<>();
-                            session.setMsgQueue(imMessages);
-                        }
-                        imMessages.add(imMessage);
-                        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(JSON.toJSONString(imMessages).getBytes("UTF-8")));
-                        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
-                        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-                        response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                        channel.write(response);
-                        channel.flush();
-                        imMessages.clear();
-                    } catch (Exception e) {
-
-                    }
+                session.setUpdateTime(System.currentTimeMillis());
+                if (channel != null && channel.isActive()) {
+                     List<ImMessage> imMessages = session.getMsgQueue();
+                     if (imMessages == null){
+                         imMessages = new ArrayList<>();
+                         session.setMsgQueue(imMessages);
+                     }
+                     imMessages.add(imMessage);
+                     L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(imMessages));
+                     imMessages.clear();
                 }
             }
 

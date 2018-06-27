@@ -1,10 +1,14 @@
 package com.moer.l2;
 
+import com.alibaba.fastjson.JSON;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -78,8 +82,34 @@ public class L2ApplicationContext {
      * 注销用户 清理用户在线数据
      * @TODO
      */
-    public void logout(ImSession imSession)
+    public void logout(ImSession imSession,String message)
     {
+        if (imSession == null)
+            return;
+        delOnlineUserSession(imSession);
+        Channel channel = imSession.getChannel();
+        if (channel.isActive()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("code", 1000);
+            map.put("message", "user logout");
+            map.put("data", message);
+            sendResponse(channel,JSON.toJSONString(map));
+        }
+    }
+
+    public void sendResponse(Channel channel, String msg)
+    {
+        try {
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(msg.getBytes("UTF-8")));
+            response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
+            response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
+            response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+            channel.write(response);
+            channel.flush();
+        }catch (Exception e){
+
+        }
+
 
     }
 }

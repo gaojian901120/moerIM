@@ -8,6 +8,7 @@ import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
 import com.moer.l1.bean.InitResponseBean;
 import com.moer.l2.L2ApplicationContext;
+import com.moer.l2.TimerTask;
 import com.moer.server.BusinessServer;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
@@ -85,7 +86,7 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null) { //剔除所有该用户已经登陆的app会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        //@TODO 清理旧的会话app数据
+                        L2ApplicationContext.getInstance().logout(imSession, "user login in other app end");
                     }
                 }
             }
@@ -94,7 +95,7 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null) { //剔除所有该用户已经登陆的web会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        //@TODO 清理旧的会话web数据
+                        L2ApplicationContext.getInstance().logout(imSession, "user login in other web end");
                     }
                 }
             }
@@ -103,9 +104,9 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null) { //剔除所有该用户已经登陆的web会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (source.equals(ImSession.SESSION_SOURCE_APP) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        //@TODO 清理旧的会话web数据
+                        L2ApplicationContext.getInstance().logout(imSession, "user login in other end");
                     } else if (source.equals(ImSession.SESSION_SOURCE_WEB) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        //@TODO 清理旧的会话app数据
+                        L2ApplicationContext.getInstance().logout(imSession, "user login in other end");
                     }
                 }
             }
@@ -117,6 +118,7 @@ public class L2ActionHandler extends ActionHandler {
             }
             onlineSession.put(imSession.getSeeesionId(), imSession);
             L2ApplicationContext.getInstance().addOnlineUserSession(uid, imSession);
+            L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
             result = renderResult(1000, "connect success", imSession.getSeeesionId());
         } else {
             result = renderResult(1002, "the user request the error service node", null);
@@ -157,7 +159,7 @@ public class L2ActionHandler extends ActionHandler {
         }
 
         ImSession imSession = sessionMap.get(sessionId);
-        if (imSession.getChannel().isActive()){ //@TODO 说明当前有节点连接
+        if (imSession.getChannel().isActive()){
             return renderResult(1001, "failed", "other user connect with this session");
         }
         // 更新session活跃时间

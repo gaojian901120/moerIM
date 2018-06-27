@@ -3,6 +3,7 @@ package com.moer.l2;
 import com.moer.entity.ImSession;
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -10,22 +11,31 @@ import java.util.Queue;
  */
 public class TimerThread extends Thread
 {
-    public Queue<Object> taskLisk = new LinkedList<>();
+    public Queue<TimerTask> taskLisk = new LinkedList<>();
 
     @Override
     public void run() {
         while (true){
-            Object o = taskLisk.poll();
-            if (o instanceof ImSession){
-                ImSession imSession = (ImSession)o;
-                long curTime = System.currentTimeMillis();
+            TimerTask task = taskLisk.poll();
+            long execTime = task.getExecTime();
+            long curTime = System.currentTimeMillis();
+            if (execTime > curTime) {
+                try {
+                    Thread.sleep(1000);
+                }catch (Exception e){}
+            }
+            int type = task.getTaskType();
+            if (type == TimerTask.TASK_SESSION_CHECK) {
+                ImSession imSession = (ImSession)task.getData();
                 long updateTime = imSession.getUpdateTime();
                 if (imSession.getChannel().isActive() ||curTime - updateTime >=10 ){//10s内活跃 或者当前连接hold 则用户在线
-                    taskLisk.add(o);
+                    task.setExecTime(execTime+10000);
+                    taskLisk.add(task);
                 }else  {
-                    L2ApplicationContext.getInstance().logout(imSession);
+                    L2ApplicationContext.getInstance().logout(imSession, "user session expired");
                 }
             }
         }
     }
+
 }
