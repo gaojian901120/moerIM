@@ -1,6 +1,9 @@
 package com.moer.dao.mysql;
 
 import com.moer.bean.GroupMembers;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface GroupMembersMapper {
     /**
@@ -18,4 +21,6 @@ public interface GroupMembersMapper {
      * @mbggenerated Mon Jun 11 14:24:09 CST 2018
      */
     int insertSelective(GroupMembers record);
+
+    List<GroupMembers> selectBySelective(@Param("record") GroupMembers record);
 }

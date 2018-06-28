@@ -151,4 +151,16 @@
       </if>
     </trim>
   </insert>
+  <select id="selectBySelective" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from group_members
+    where 1 = 1
+    <if test="record.gid != null">
+      and gid = #{record.gid,jdbcType=CHAR}
+    </if>
+    <if test="record.uid != null">
+      and uid = #{record.uid,jdbcType=INTEGER}
+    </if>
+      </select>
 </mapper>
