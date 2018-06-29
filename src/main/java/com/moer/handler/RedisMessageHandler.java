@@ -51,41 +51,57 @@ public class RedisMessageHandler extends JedisPubSub {
                 groupInfo.setTopic(event.get("topic").toString());
                 groupInfo.setDescription(event.get("description").toString());
             }else if ("group_members".equals(tableName)) {
-                int gid = Integer.valueOf(event.get("gid").toString());
-                int uid = Integer.valueOf(event.get("uid").toString());
-                ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
-                GroupInfo groupInfo = imGroup.groupInfo;
-                if (groupInfo == null){
-                    GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-                    groupInfo= infoService.getById(gid);
-                    imGroup.groupInfo = groupInfo;
-                }
-                Map<Integer, GroupMembers> membersMap = imGroup.userList;
-                if (membersMap == null || !membersMap.containsKey(uid)){
-                    if (membersMap == null) {
-                        membersMap = new ConcurrentHashMap<>();
-                        imGroup.userList = membersMap;
-                    }
-                    GroupMembersMapper membersMapper = ServiceFactory.getInstace(GroupMembersMapper.class);
-                    GroupMembers record = new GroupMembers();
-                    record.setGid(String.valueOf(gid));
-                    record.setUid(uid);
-                    List<GroupMembers> membersList = membersMapper.selectBySelective(record);
-                    if (membersList != null) {
-                        membersMap.put(uid,membersList.get(0));
-                    }
-                }
-                //@TODO 业务监控程序 方便排查问题 并修复问题
-                GroupMembers groupMembers = membersMap.get(uid);
-                if (event.containsKey("expire_time")) {
-                    try {
-                        groupMembers.setExpireTime(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").parse(event.get("expire_time").toString()));
-                    }catch (Exception e){}
-                }
-                if (event.containsKey("role_flag")) {
-                    groupMembers.setRoleFlag(Integer.valueOf(event.get("role_flag").toString()));
+                if (action.equals("update")) {
+                    handleGroupMemberUpdate(event);
+                }else if (action.equals("delete")) {
+                    handleGroupMemberDelete(event);
                 }
             }
         }
+    }
+
+    public void handleGroupMemberUpdate(Map<String,Object> event)
+    {
+        int gid = Integer.valueOf(event.get("gid").toString());
+        int uid = Integer.valueOf(event.get("uid").toString());
+        ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
+        GroupInfo groupInfo = imGroup.groupInfo;
+        if (groupInfo == null){
+            GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
+            groupInfo= infoService.getById(gid);
+            imGroup.groupInfo = groupInfo;
+        }
+        Map<Integer, GroupMembers> membersMap = imGroup.userList;
+        if (membersMap == null || !membersMap.containsKey(uid)){
+            if (membersMap == null) {
+                membersMap = new ConcurrentHashMap<>();
+                imGroup.userList = membersMap;
+            }
+            GroupMembersMapper membersMapper = ServiceFactory.getInstace(GroupMembersMapper.class);
+            GroupMembers record = new GroupMembers();
+            record.setGid(String.valueOf(gid));
+            record.setUid(uid);
+            List<GroupMembers> membersList = membersMapper.selectBySelective(record);
+            if (membersList != null) {
+                membersMap.put(uid,membersList.get(0));
+            }
+        }
+        //@TODO 业务监控程序 方便排查问题 并修复问题
+        GroupMembers groupMembers = membersMap.get(uid);
+        if (event.containsKey("expire_time")) {
+            try {
+                groupMembers.setExpireTime(new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").parse(event.get("expire_time").toString()));
+            }catch (Exception e){}
+        }
+        if (event.containsKey("role_flag")) {
+            groupMembers.setRoleFlag(Integer.valueOf(event.get("role_flag").toString()));
+        }
+    }
+
+    public void handleGroupMemberDelete(Map<String,Object> event)
+    {
+        int gid = Integer.valueOf(event.get("gid").toString());
+        int uid = Integer.valueOf(event.get("uid").toString());
+        ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
     }
 }
