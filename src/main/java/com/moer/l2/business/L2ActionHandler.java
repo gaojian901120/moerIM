@@ -116,8 +116,7 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession == null) {
                 onlineSession = new HashMap<>();
             }
-            onlineSession.put(imSession.getSeeesionId(), imSession);
-            L2ApplicationContext.getInstance().addOnlineUserSession(uid, imSession);
+            L2ApplicationContext.getInstance().login(imSession);
             L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
             result = renderResult(1000, "connect success", imSession.getSeeesionId());
         } else {

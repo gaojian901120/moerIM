@@ -17,11 +17,13 @@ public class ImGroup {
     public int gid;
     /**
      * 直播间在线成员集合 会把消息推送给这个集合的所有成员
+     * 用户connect的时候更新在线用户列表 后续过期或者被人踢出去的时候 通过redis事件更新
      */
     public Map<Integer, GroupMembers> userList = new ConcurrentHashMap<>();
 
     /**
      * 直播间黑名单成员集合  在黑名单中的成员不会给他推送消息  同时也不能发送消息
+     * 用户connect的时候更新黑名单用户列表 后续过期或者被人踢出去的时候 通过redis事件更新
      */
     public Map<Integer, GroupMembers> blackList = new ConcurrentHashMap<Integer, GroupMembers>();
 

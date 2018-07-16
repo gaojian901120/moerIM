@@ -1,24 +1,27 @@
 package com.moer.l2;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.bean.GroupInfo;
+import com.moer.bean.GroupMembers;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
+import com.moer.service.GroupInfoService;
+import com.moer.service.GroupMembersService;
+import com.moer.service.ServiceFactory;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.*;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by gaoxuejian on 2018/5/19.
  * 服务层节点的全局上下文
+ * 主要存储业务逻辑上的数据
  */
 public class L2ApplicationContext {
     private static class L2ApplicationContextHolder {
@@ -79,6 +82,37 @@ public class L2ApplicationContext {
     }
 
     /**
+     * 登陆 用户第一次调用connect方法的时候 需要初始化一些数据
+     * @param imSession
+     */
+    public void login(ImSession imSession)
+    {
+        //将session加入在线集合
+        addOnlineUserSession(imSession.getUid(),imSession);
+        //更新Group的信息
+        GroupMembersService membersService = ServiceFactory.getInstace(GroupMembersService.class);
+        GroupMembers members = new GroupMembers();
+        members.setUid(imSession.getUid());
+        List<GroupMembers> membersList =  membersService.getMember(members);
+        if (membersList != null && membersList.size() > 0) {
+            GroupInfoService groupService = ServiceFactory.getInstace(GroupInfoService.class);
+            for (GroupMembers item: membersList) {
+                //更新直播间群组的在线人数
+                groupService.incrOnlineNum(item.getGid(), 1);
+                //更新ImGroup里面的在线用户集合
+                ImGroup imGroup = IMGroupContext.get(item.getGid());
+                if (imGroup == null) {
+                    imGroup = ImGroup.initImGroup(groupService.getById(Integer.valueOf(item.getGid())));
+                }
+                imGroup.userList.put(item.getUid(),item);
+                //将直播间加入用户订阅的群聊列表
+                IMUserContext.get(item.getUid()).getGroupMap().put(Integer.valueOf(item.getGid()),imGroup);
+
+            }
+        }
+    }
+
+    /**
      * 注销用户 清理用户在线数据
      * @TODO
      */
@@ -87,6 +121,8 @@ public class L2ApplicationContext {
         if (imSession == null)
             return;
         delOnlineUserSession(imSession);
+        //清理用户所在直播间的数据
+
         Channel channel = imSession.getChannel();
         if (channel.isActive()) {
             Map<String, Object> map = new HashMap<>();

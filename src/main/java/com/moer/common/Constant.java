@@ -14,4 +14,5 @@ public class Constant {
     public static final String ZK_IM_CHIID_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/child:"; //格式 prefix:ip:port  data 保存当前节点的状态
     public static final String ZK_IM_MASTER_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/master:"; //格式 prefix:ip:port
 
+    public static final String REDIS_KEY_GROUP_ONLINENUM = "im:group:onlinenum:";
 }

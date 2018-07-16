@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -56,9 +57,7 @@ public class RedisStore {
         } catch (Exception e) {
             log.error("lpush failed with key:[%s] ,value:[%s]", key, t);
         } finally {
-            if (null != jedis) {
-                jedis.close();
-            }
+            closeRedis(jedis);
             return ret;
 
         }
@@ -82,9 +81,7 @@ public class RedisStore {
         } catch (Exception e) {
             log.error("rpop failed with key:[%s] ", key);
         } finally {
-            if (null != jedis) {
-                jedis.close();
-            }
+            closeRedis(jedis);
             return rst;
 
         }
@@ -109,9 +106,7 @@ public class RedisStore {
         } catch (Exception e) {
             log.error("brpop failed with key:[%s] ", key);
         } finally {
-            if (null != jedis) {
-                jedis.close();
-            }
+            closeRedis(jedis);
             return rst;
 
         }
@@ -132,9 +127,7 @@ public class RedisStore {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (null != jedis) {
-                jedis.close();
-            }
+            closeRedis(jedis);
             return;
 
         }
@@ -155,11 +148,42 @@ public class RedisStore {
             }
         } catch (Exception e) {
         } finally {
-            if (null != jedis) {
-                jedis.close();
-            }
+            closeRedis(jedis);
             return rst;
 
+        }
+    }
+
+    public boolean set(String key, String value){
+        if (key == null) return false;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return  "OK".equals(jedis.set(key,value)) ? true : false ;
+        }catch (Exception e){ }
+        finally {
+            closeRedis(jedis);
+        }
+        return false;
+    }
+
+    public Long incr(String key, long num)
+    {
+        if (key == null) return 0L;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.incrBy(key, num);
+        }catch (Exception e){ }
+        finally {
+            closeRedis(jedis);
+        }
+        return 0L;
+    }
+    private void closeRedis(Jedis jedis)
+    {
+        if (null != jedis) {
+            jedis.close();
         }
     }
 }
