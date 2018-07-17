@@ -19,10 +19,7 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by gaoxuejian on 2018/5/3.
@@ -77,21 +74,25 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             Map<String,ImSession> userSessions = imUserContext.get(uid).getSessions();
             //说明用户不在线
             if (userSessions == null  || userSessions.size() == 0){
-                imUserContext.get(uid).newUnreadMsg(imMessage);
                 continue;
             }
             for (ImSession session : userSessions.values()){
                 Channel channel = session.getChannel();
                 session.setUpdateTime(System.currentTimeMillis());
-                if (channel != null && channel.isActive()) {
-                     List<ImMessage> imMessages = session.getMsgQueue();
-                     if (imMessages == null){
-                         imMessages = new ArrayList<>();
-                         session.setMsgQueue(imMessages);
-                     }
-                     imMessages.add(imMessage);
-                     L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(imMessages));
-                     imMessages.clear();
+                if (channel != null) {
+                    Vector<ImMessage> imMessages = session.getMsgQueue();
+                    if (imMessages == null) {
+                        imMessages = new Vector<>();
+                        session.setMsgQueue(imMessages);
+                    }
+                    if (channel.isActive()) {
+                        imMessages.add(imMessage);
+                        L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(imMessages));
+                        imMessages.clear();
+                    }else {
+                        //session 对应的请求 还没有过来 保持在服务器上临时存储
+                        imMessages.add(imMessage);
+                    }
                 }
             }
 

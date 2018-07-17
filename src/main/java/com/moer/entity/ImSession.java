@@ -3,10 +3,8 @@ package com.moer.entity;
 import com.moer.util.CryptUtil;
 import io.netty.channel.Channel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
+
 /**
  * Created by gaoxuejian on 2018/5/4.
  * 会话管理
@@ -25,10 +23,9 @@ public class ImSession {
     public static final String SESSION_SOURCE_APP = "app";
     /**
      * 待推送到客户端的消息队列
-     *
-     * @TODO arraylist or 其他列表结构
+     *多个线程同时写 需要并发 vector是线程安全的数据结构
      */
-    List<ImMessage> msgQueue = new ArrayList<ImMessage>();
+    Vector<ImMessage> msgQueue  = new Vector<>();
     /**
      * 会话id  首次进入直播间验证通过后生成会话id
      */
@@ -126,11 +123,11 @@ public class ImSession {
         this.status = status;
     }
 
-    public List<ImMessage> getMsgQueue() {
+    public Vector<ImMessage> getMsgQueue() {
         return msgQueue;
     }
 
-    public void setMsgQueue(List<ImMessage> msgQueue) {
+    public void setMsgQueue(Vector<ImMessage> msgQueue) {
         this.msgQueue = msgQueue;
     }
 

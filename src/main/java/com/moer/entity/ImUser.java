@@ -18,11 +18,14 @@ public class ImUser {
     /**
      * 用户当前 对应连接的session
      * 一般一个用户同时最多几个连接 不需要太多考虑多线程读写该map的场景
+     * 用户首次connect的时候会生成一个session，过期退出登录 进行清理
      */
     private Map<String, ImSession> sessions =  new ConcurrentHashMap<>();
 
     /**
      * 用户的未读消息数
+     * 根据消息序列号进行计算
+     * @TODO  更新用户未读消息数
      */
     int unReadMsgNum = 0;
 
@@ -68,13 +71,4 @@ public class ImUser {
         this.groupMap = groupMap;
     }
 
-    public void newUnreadMsg(ImMessage imMessage)
-    {
-        unReadMsgNum++;
-        unReadDetail.add(imMessage);
-        if (unReadDetail.size() > 20){
-            unReadDetail.poll();
-        }
-
-    }
 }
