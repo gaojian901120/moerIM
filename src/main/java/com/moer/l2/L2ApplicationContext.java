@@ -120,9 +120,22 @@ public class L2ApplicationContext {
     {
         if (imSession == null)
             return;
-        delOnlineUserSession(imSession);
         //清理用户所在直播间的数据
+        ImUser imUser= IMUserContext.get(imSession.getUid());
+        if (imUser == null) return;
+        Map<Integer,ImGroup> userGroup = imUser.getGroupMap();
+        if (userGroup != null && userGroup.size() > 0) {
+            GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
+            for (Map.Entry<Integer,ImGroup> entry: userGroup.entrySet()) {
+                //在线人数 减1
+                infoService.incrOnlineNum(String.valueOf(entry.getValue().gid), -1);
+                //群组在线集合 移除
+                IMGroupContext.get(entry.getValue().gid).userList.remove(imSession.getUid());
+            }
+            //移除用户订阅的群组
+            imUser.getGroupMap().clear();
 
+        }
         Channel channel = imSession.getChannel();
         if (channel.isActive()) {
             Map<String, Object> map = new HashMap<>();
@@ -131,6 +144,9 @@ public class L2ApplicationContext {
             map.put("data", message);
             sendResponse(channel,JSON.toJSONString(map));
         }
+        //移除用户在线session
+        delOnlineUserSession(imSession);
+
     }
 
     public void sendResponse(Channel channel, String msg)
