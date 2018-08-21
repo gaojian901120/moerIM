@@ -6,15 +6,12 @@ import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
-import com.moer.l1.bean.InitResponseBean;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.l2.TimerTask;
-import com.moer.server.BusinessServer;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -113,9 +110,6 @@ public class L2ActionHandler extends ActionHandler {
         }
         ServerNode serverNode = nodeManager.getServerNode(uid);
         if (serverNode != null && serverNode.getHost().equals(nettyConfig.getHostName()) && serverNode.getPort() == nettyConfig.getPort()) {
-            if (onlineSession == null) {
-                onlineSession = new HashMap<>();
-            }
             L2ApplicationContext.getInstance().login(imSession);
             L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
             result = renderResult(1000, "connect success", imSession.getSeeesionId());

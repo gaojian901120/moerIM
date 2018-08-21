@@ -3,7 +3,9 @@ package com.moer.entity;
 import com.moer.util.CryptUtil;
 import io.netty.channel.Channel;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by gaoxuejian on 2018/5/4.

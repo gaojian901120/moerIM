@@ -1,6 +1,5 @@
 package com.moer.util;
 
-import java.awt.*;
 import java.security.MessageDigest;
 import java.util.Random;
 

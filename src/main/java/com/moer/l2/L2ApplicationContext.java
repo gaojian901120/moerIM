@@ -1,7 +1,6 @@
 package com.moer.l2;
 
 import com.alibaba.fastjson.JSON;
-import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
@@ -15,7 +14,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

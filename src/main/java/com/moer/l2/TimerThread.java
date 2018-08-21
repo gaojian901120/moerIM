@@ -3,7 +3,6 @@ package com.moer.l2;
 import com.moer.entity.ImSession;
 
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 /**

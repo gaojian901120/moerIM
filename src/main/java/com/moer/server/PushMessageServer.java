@@ -1,7 +1,10 @@
 package com.moer.server;
 
-import com.moer.l2.L2ChannelInitializer;
+import com.moer.bean.GroupMembers;
 import com.moer.config.NettyConfig;
+import com.moer.l2.L2ChannelInitializer;
+import com.moer.service.GroupMembersService;
+import com.moer.service.ServiceFactory;
 import com.moer.store.GroupStore;
 import com.moer.store.UserStore;
 import io.netty.bootstrap.ServerBootstrap;
@@ -18,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * Created by gaoxuejian on 2018/5/1.
@@ -31,15 +35,11 @@ public class PushMessageServer {
     private L2ChannelInitializer imChannelInitializer;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
-    private UserStore userStore;
-    private GroupStore groupStore;
 
     public PushMessageServer(NettyConfig config) {
         nettyConfig = new NettyConfig(config);
         serverBootstrap = new ServerBootstrap();
         imChannelInitializer = new L2ChannelInitializer(nettyConfig, this);
-        userStore = new UserStore();
-        groupStore = new GroupStore();
     }
 
     public Future start() {
@@ -79,37 +79,11 @@ public class PushMessageServer {
     }
 
     public void initData() {
-        userStore.addOnlineUser(100809070);
-        groupStore.addGroupUser(100500, 100809070);
-        userStore.addOnlineUser(100809071);
-        groupStore.addGroupUser(100500, 100809071);
-        userStore.addOnlineUser(100809072);
-        groupStore.addGroupUser(100500, 100809072);
-        userStore.addOnlineUser(100809073);
-        groupStore.addGroupUser(100500, 100809073);
-        userStore.addOnlineUser(100809074);
-        groupStore.addGroupUser(100500, 100809074);
-
-        userStore.addOnlineUser(100809070);
-        groupStore.addGroupUser(100503, 100809070);
-        userStore.addOnlineUser(100809071);
-        groupStore.addGroupUser(100503, 100809071);
-        userStore.addOnlineUser(100809072);
-        groupStore.addGroupUser(100503, 100809072);
-        userStore.addOnlineUser(100809073);
-        groupStore.addGroupUser(100503, 100809073);
-        userStore.addOnlineUser(100809074);
-        groupStore.addGroupUser(100503, 100809074);
-
+        //测试模拟一个摩尔大秘书的直播 21264559308801  101000002  订阅人数不到八万 模拟极限在线情况 @TODO 不好模拟 先测简单的
+        //16559074508801  向这个直播间发消息  102657004 来接受消息
+//        GroupMembersService membersService = ServiceFactory.getInstace(GroupMembersService.class);
+//        GroupMembers members = new GroupMembers();
+//        members.setUid(102657004);
+//        List<GroupMembers> membersList = membersService.getMember(members);
     }
-
-    public GroupStore getGroupStore() {
-        return groupStore;
-    }
-
-
-    public UserStore getUserStore() {
-        return userStore;
-    }
-
 }

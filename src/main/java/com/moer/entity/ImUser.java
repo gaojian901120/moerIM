@@ -1,9 +1,9 @@
 package com.moer.entity;
 
-import com.moer.bean.GroupInfo;
-import com.moer.bean.GroupMembers;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

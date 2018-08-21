@@ -3,8 +3,6 @@ package com.moer.entity;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 
-import java.security.acl.Group;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

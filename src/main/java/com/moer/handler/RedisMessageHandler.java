@@ -8,15 +8,12 @@ import com.moer.dao.mysql.GroupMembersMapper;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.l2.L2ApplicationContext;
-import com.moer.l2.L2ServiceApplication;
 import com.moer.server.DispatchServer;
-import com.moer.server.PushMessageServer;
 import com.moer.service.GroupInfoService;
 import com.moer.service.ServiceFactory;
 import redis.clients.jedis.JedisPubSub;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

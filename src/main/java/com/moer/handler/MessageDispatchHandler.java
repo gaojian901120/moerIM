@@ -8,18 +8,14 @@ import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
 import com.moer.l2.L2ApplicationContext;
-import com.moer.server.PushMessageServer;
 import com.moer.service.GroupInfoService;
 import com.moer.service.ServiceFactory;
-import com.moer.store.GroupStore;
-import com.moer.store.UserStore;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by gaoxuejian on 2018/5/3.
