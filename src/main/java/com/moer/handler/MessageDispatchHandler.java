@@ -49,15 +49,15 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     public void run() {
         //分发消息到不同的连接层节点
         int sender = Integer.valueOf(imMessage.getSend());
-        int recver = Integer.valueOf(imMessage.getRecv());
+        Long recver = Long.valueOf(imMessage.getRecv());
         Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
-        Map<Integer, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
+        Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
         ImGroup targetGroup = imGroupContext.get(recver);
         if (targetGroup == null){
             GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-            GroupInfo groupInfo= infoService.getById(recver);
+            GroupInfo groupInfo= infoService.getByGid(String.valueOf(recver));
             targetGroup = ImGroup.initImGroup(groupInfo);
-            imGroupContext.put(recver,targetGroup);
+            imGroupContext.put(String.valueOf(recver),targetGroup);
             logger.info("init group {} ",recver);
         }
         Map<Integer,GroupMembers> memberMap = targetGroup.userList;
@@ -78,7 +78,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 if (channel != null) {
                     Vector<ImMessage> imMessages = session.getMsgQueue();
                     if (imMessages == null) {
-                        imMessages = new Vector<>();
+                        imMessages = new Vector<ImMessage>();
                         session.setMsgQueue(imMessages);
                     }
                     if (channel.isActive()) {

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ImGroup {
     public GroupInfo groupInfo;
-    public int gid;
+    public String gid;
     /**
      * 直播间在线成员集合 会把消息推送给这个集合的所有成员
      * 用户connect的时候更新在线用户列表 后续过期或者被人踢出去的时候 通过redis事件更新
@@ -34,7 +34,7 @@ public class ImGroup {
     {
         ImGroup group = new ImGroup();
         group.groupInfo = groupInfo;
-        group.gid = groupInfo.getId();
+        group.gid = groupInfo.getGid();
         return group;
     }
 }

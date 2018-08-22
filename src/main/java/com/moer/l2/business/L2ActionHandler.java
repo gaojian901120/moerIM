@@ -112,7 +112,10 @@ public class L2ActionHandler extends ActionHandler {
         if (serverNode != null && serverNode.getHost().equals(nettyConfig.getHostName()) && serverNode.getPort() == nettyConfig.getPort()) {
             L2ApplicationContext.getInstance().login(imSession);
             L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
-            result = renderResult(1000, "connect success", imSession.getSeeesionId());
+            Map<String,Object> data = new HashMap<>();
+            data.put("sessionId", imSession.getSeeesionId());
+            data.put("uid",String.valueOf(uid));
+            result = renderResult(1000, "connect success", data);
         } else {
             result = renderResult(1002, "the user request the error service node", null);
         }
@@ -152,9 +155,7 @@ public class L2ActionHandler extends ActionHandler {
         }
 
         ImSession imSession = sessionMap.get(sessionId);
-        if (imSession.getChannel().isActive()){
-            return renderResult(1001, "failed", "other user connect with this session");
-        }
+
         // 更新session活跃时间
         imSession.setUpdateTime(System.currentTimeMillis());
         List<ImMessage> messageList = imSession.getMsgQueue();

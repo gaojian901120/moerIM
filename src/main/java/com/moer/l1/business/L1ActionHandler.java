@@ -48,6 +48,7 @@ public class L1ActionHandler extends ActionHandler {
                 if (serverNode != null) {
                     irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
                     irb.token = nodeManager.getNodeHash();
+                    irb.uid =uid;
                     result = renderResult(1000, "success", irb);
                 } else {
                     result = renderResult(1002, "no server to service", null);

@@ -28,21 +28,21 @@ public class RedisMessageHandler extends JedisPubSub {
 
     @Override
     public void onMessage(String channel, String message) {
-        if (channel == Constant.MSG_RECV_QUEUE) {
+        if (channel.equals(Constant.MSG_RECV_QUEUE)) {
             ImMessage imMessage = JSON.parseObject(message, ImMessage.class);
             MessageDispatchHandler handler = new MessageDispatchHandler(1, imMessage);
             DispatchServer.dispatchMsg(handler);
-        }else if (channel == Constant.DATA_SYNC_QUEUE) {
+        }else if (channel.equals(Constant.DATA_SYNC_QUEUE)) {
             Map<String,Object> event = (Map<String, Object>) JSON.parse(message);
             String tableName = (String) event.get("tableName");
             String action = (String)event.get("action");
             if ("group_info".equals(tableName)) {
-                int gid = Integer.valueOf(event.get("gid").toString());
+                long gid = Long.valueOf(event.get("gid").toString());
                 ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
                 GroupInfo groupInfo = imGroup.groupInfo;
                 if (groupInfo == null){
                     GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-                    groupInfo= infoService.getById(gid);
+                    groupInfo= infoService.getByGid(String.valueOf(gid));
                     imGroup.groupInfo = groupInfo;
                 }
                 groupInfo.setTopic(event.get("topic").toString());
@@ -59,13 +59,13 @@ public class RedisMessageHandler extends JedisPubSub {
 
     public void handleGroupMemberUpdate(Map<String,Object> event)
     {
-        int gid = Integer.valueOf(event.get("gid").toString());
+        long gid = Long.valueOf(event.get("gid").toString());
         int uid = Integer.valueOf(event.get("uid").toString());
         ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
         GroupInfo groupInfo = imGroup.groupInfo;
         if (groupInfo == null){
             GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-            groupInfo= infoService.getById(gid);
+            groupInfo= infoService.getByGid(String.valueOf(gid));
             imGroup.groupInfo = groupInfo;
         }
         Map<Integer, GroupMembers> membersMap = imGroup.userList;

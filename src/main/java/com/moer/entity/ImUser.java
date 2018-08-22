@@ -37,7 +37,7 @@ public class ImUser {
     /**
      * 用户订阅的群聊列表
      */
-    Map<Integer, ImGroup> groupMap = new HashMap<Integer, ImGroup>();
+    Map<String, ImGroup> groupMap = new HashMap<String, ImGroup>();
 
     public Map<String, ImSession> getSessions() {
         return sessions;
@@ -63,11 +63,11 @@ public class ImUser {
         this.unReadDetail = unReadDetail;
     }
 
-    public Map<Integer, ImGroup> getGroupMap() {
+    public Map<String, ImGroup> getGroupMap() {
         return groupMap;
     }
 
-    public void setGroupMap(Map<Integer, ImGroup> groupMap) {
+    public void setGroupMap(Map<String, ImGroup> groupMap) {
         this.groupMap = groupMap;
     }
 

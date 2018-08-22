@@ -11,11 +11,11 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class GroupInfoService
 {
-    public GroupInfo getById(int id)
+    public GroupInfo getByGid(String gid)
     {
         SqlSession sqlSession = ServiceFactory.getSqlSession();
         GroupInfoMapper groupInfoMapper = sqlSession.getMapper(GroupInfoMapper.class);
-        return groupInfoMapper.selectByPrimaryKey(id);
+        return groupInfoMapper.selectByGid(gid);
     }
 
     /**

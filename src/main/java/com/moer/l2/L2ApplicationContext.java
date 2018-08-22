@@ -1,6 +1,7 @@
 package com.moer.l2;
 
 import com.alibaba.fastjson.JSON;
+import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
@@ -37,7 +38,7 @@ public class L2ApplicationContext {
     }
 
     public Map<Integer, ImUser> IMUserContext = new ConcurrentHashMap<>();
-    public Map<Integer, ImGroup> IMGroupContext = new ConcurrentHashMap<>();
+    public Map<String, ImGroup> IMGroupContext = new ConcurrentHashMap<>();
     public TimerThread timerThread = new TimerThread();
     public ImConfig imConfig;
     public NettyConfig nettyConfig;
@@ -103,11 +104,15 @@ public class L2ApplicationContext {
                 //更新ImGroup里面的在线用户集合
                 ImGroup imGroup = IMGroupContext.get(item.getGid());
                 if (imGroup == null) {
-                    imGroup = ImGroup.initImGroup(groupService.getById(Integer.valueOf(item.getGid())));
+                    GroupInfo group = groupService.getByGid(item.getGid());
+                    if (group == null) {
+                        continue;
+                    }
+                    imGroup = ImGroup.initImGroup(groupService.getByGid(item.getGid()));
                 }
                 imGroup.userList.put(item.getUid(),item);
                 //将直播间加入用户订阅的群聊列表
-                IMUserContext.get(item.getUid()).getGroupMap().put(Integer.valueOf(item.getGid()),imGroup);
+                IMUserContext.get(item.getUid()).getGroupMap().put(item.getGid(),imGroup);
 
             }
         }
@@ -124,10 +129,10 @@ public class L2ApplicationContext {
         //清理用户所在直播间的数据
         ImUser imUser= IMUserContext.get(imSession.getUid());
         if (imUser == null) return;
-        Map<Integer,ImGroup> userGroup = imUser.getGroupMap();
+        Map<String,ImGroup> userGroup = imUser.getGroupMap();
         if (userGroup != null && userGroup.size() > 0) {
             GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-            for (Map.Entry<Integer,ImGroup> entry: userGroup.entrySet()) {
+            for (Map.Entry<String,ImGroup> entry: userGroup.entrySet()) {
                 //在线人数 减1
                 infoService.incrOnlineNum(String.valueOf(entry.getValue().gid), -1);
                 //群组在线集合 移除
