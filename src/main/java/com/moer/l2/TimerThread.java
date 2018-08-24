@@ -16,6 +16,12 @@ public class TimerThread extends Thread
     public void run() {
         while (true){
             TimerTask task = taskLisk.poll();
+            if (task == null) {
+                try {
+                    Thread.sleep(1000);
+                }catch (Exception e){}
+                continue;
+            }
             long execTime = task.getExecTime();
             long curTime = System.currentTimeMillis();
             if (execTime > curTime) {
@@ -27,7 +33,7 @@ public class TimerThread extends Thread
             if (type == TimerTask.TASK_SESSION_CHECK) {
                 ImSession imSession = (ImSession)task.getData();
                 long updateTime = imSession.getUpdateTime();
-                if (imSession.getChannel().isActive() ||curTime - updateTime >=10 ){//10s内活跃 或者当前连接hold 则用户在线
+                if (imSession.getChannel().isActive() ||curTime - updateTime <=10000 ){//10s内活跃 或者当前连接hold 则用户在线
                     task.setExecTime(execTime+10000);
                     taskLisk.add(task);
                 }else  {

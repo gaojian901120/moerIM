@@ -38,6 +38,7 @@ public class ImSession {
     private long createTime;
     /**
      * 当前会话所对应的连接
+     * 一个channel其实就是一个scoket  当一个 进程内没有断开的时候 可以被重复使用
      */
     private Channel channel;
 
@@ -65,9 +66,12 @@ public class ImSession {
     }
 
     /**
-     * 0 正常 1 需要剔除登陆 原因是不满足多端登陆
+     *
+     * 默认-1 表示当前session还没有pull请求 hold
+     * 0 表示有pull请求hold在服务端
+     * 1表示session需要被删除
      */
-    public int status;
+    public int status = -1;
 
     public static String getSessionCode() {
         return sessionCode;
@@ -125,12 +129,15 @@ public class ImSession {
         this.status = status;
     }
 
-    public Vector<ImMessage> getMsgQueue() {
-        return msgQueue;
-    }
 
-    public void setMsgQueue(Vector<ImMessage> msgQueue) {
-        this.msgQueue = msgQueue;
+    public void pushMsg(ImMessage imMessage) {
+        msgQueue.add(imMessage);
+    }
+    public Vector<ImMessage> popAllMsgQueue() {
+        Vector<ImMessage> messages = new Vector<>();
+        messages.addAll(msgQueue);
+        msgQueue.clear();
+        return messages;
     }
 
 }

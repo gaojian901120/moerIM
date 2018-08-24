@@ -29,13 +29,9 @@ public class L2ServiceApplication {
         L2ApplicationContext.getInstance().imConfig = ConfigUtil.loadImConfig();
         L2ApplicationContext.getInstance().nettyConfig = nettyConfig;
         NodeManager nodeManager = NodeManager.getInstance();
-        nodeManager.init(zkConfig, nettyConfig);
-        if (!nodeManager.createRootNode())
-            return;
-        if (!nodeManager.createNode("child", nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort())))
-            return;
-        if (!nodeManager.checkAndMonitorChildStat())
-            return;
+        nodeManager.setConfig(zkConfig, nettyConfig, "l2");
+        new Thread(nodeManager).start();
+        L2ApplicationContext.getInstance().timerThread.start();
         PushMessageServer nettyServer = new PushMessageServer(nettyConfig);
         Future future = nettyServer.start();
         nettyServer.initData();

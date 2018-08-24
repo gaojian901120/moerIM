@@ -89,6 +89,7 @@ public class L2ApplicationContext {
      */
     public void login(ImSession imSession)
     {
+        System.out.println("user login :" + imSession.getUid());
         //将session加入在线集合
         addOnlineUserSession(imSession.getUid(),imSession);
         //更新Group的信息
@@ -109,6 +110,7 @@ public class L2ApplicationContext {
                         continue;
                     }
                     imGroup = ImGroup.initImGroup(groupService.getByGid(item.getGid()));
+                    IMGroupContext.put(item.getGid(), imGroup);
                 }
                 imGroup.userList.put(item.getUid(),item);
                 //将直播间加入用户订阅的群聊列表
@@ -124,6 +126,7 @@ public class L2ApplicationContext {
      */
     public void logout(ImSession imSession,String message)
     {
+        System.out.println("logout------------:" + imSession.getUid() + ", message:" + message);
         if (imSession == null)
             return;
         //清理用户所在直播间的数据

@@ -41,13 +41,8 @@ public class L1EntryApplication {
 
         try {
             NodeManager nodeManager = NodeManager.getInstance();
-            nodeManager.init(zkConfig, nettyConfig);
-            if (!nodeManager.createRootNode())
-                return;
-            if (!nodeManager.createNode("master", nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort())))
-                return;
-            if (!nodeManager.checkAndMonitorChildStat())
-                return;
+            nodeManager.setConfig(zkConfig, nettyConfig, "l1");
+            new Thread(nodeManager).start();
             //启动netty 服务 开始对外提供服务
             EventLoopGroup boss = null;
             EventLoopGroup worker = null;

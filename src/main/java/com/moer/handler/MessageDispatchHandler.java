@@ -14,6 +14,7 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -49,7 +50,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     public void run() {
         //分发消息到不同的连接层节点
         int sender = Integer.valueOf(imMessage.getSend());
-        Long recver = Long.valueOf(imMessage.getRecv());
+        String recver = imMessage.getRecv();
         Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
         Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
         ImGroup targetGroup = imGroupContext.get(recver);
@@ -76,23 +77,24 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 Channel channel = session.getChannel();
                 session.setUpdateTime(System.currentTimeMillis());
                 if (channel != null) {
-                    Vector<ImMessage> imMessages = session.getMsgQueue();
-                    if (imMessages == null) {
-                        imMessages = new Vector<ImMessage>();
-                        session.setMsgQueue(imMessages);
-                    }
-                    if (channel.isActive()) {
+                    //channel活跃只表示socket有效 可能多个请求使用同一个channel
+                    if (channel.isActive() && session.getStatus() == 0) {
+                        session.setStatus(-1);
+                        Vector<ImMessage> imMessages = session.popAllMsgQueue();
                         imMessages.add(imMessage);
-                        L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(imMessages));
-                        imMessages.clear();
+                        Map<String,Object> data = new HashMap<>();
+                        data.put("code",1000);
+                        data.put("message",1000);
+                        data.put("data",imMessages);
+                        System.out.println("message size: " +  imMessages.size());
+                        L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
                     }else {
                         //session 对应的请求 还没有过来 保持在服务器上临时存储
-                        imMessages.add(imMessage);
+                        session.pushMsg(imMessage);
                     }
                 }
             }
 
         }
-        System.out.println(System.currentTimeMillis());
     }
 }

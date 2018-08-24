@@ -14,22 +14,25 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
+import static org.apache.zookeeper.Watcher.Event.KeeperState.SyncConnected;
+
 /**
  * Created by gaoxuejian on 2018/5/11.
  * 维护和zk之间的连接，同步管理其他节点的状态
  */
-public class NodeManager implements Watcher {
+public class NodeManager implements Watcher,Runnable {
     public static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
     //每个物理节点对应的虚拟节点的数目，这里假设每台机器的配置一样 所以设置为20 实际上应该根据服务器的配置进行调整。每个物理节点对应的虚拟节点数量越多，平衡性越好，但是性能会稍微有些下降
     private static int VITRUAL_NODE_NUM = 20;
     private static String VITRUAL_SEPARTOR = "##";
     public ServerNode l1ServerNode;
-    public volatile SortedMap<String, ServerNode> realNodeList = new TreeMap<>();
-    public volatile SortedMap<Integer, String> vitrualNode = new TreeMap<Integer, String>();
+    public volatile SortedMap<String, ServerNode> realNodeList;
+    public volatile SortedMap<Integer, String> vitrualNode;
     private NettyConfig nettyConfig;
     private ZkConfig zkConfig;
     private ZooKeeper zk;
-
+    private boolean dead = true;
+    private String node = ""; // l1 or  l2
     private static class NodeManagerHolder {
         private static final NodeManager instance = new NodeManager();
     }
@@ -41,11 +44,34 @@ public class NodeManager implements Watcher {
     public final static NodeManager getInstance() {
         return NodeManagerHolder.instance;
     }
+    public void setConfig(ZkConfig zConfig, NettyConfig nConfig, String node){
+        zkConfig = new ZkConfig(zConfig);
+        nettyConfig = new NettyConfig(nConfig);
+        this.node = node;
+    }
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (this) {
+                try {
+                    Thread.sleep(500);
+                    if (dead) {
+                        if (node.equals("l1")) buildL1(node);
+                        else buildL2(node);
+                    } else {
+                        wait();
+                    }
+                } catch (Exception e) {
+                    dead = true;
+                }
+            }
+        }
+    }
 
-    public boolean init(ZkConfig config, NettyConfig nconfig) {
+    public boolean init() {
         try {
-            zkConfig = new ZkConfig(config);
-            nettyConfig = new NettyConfig(nconfig);
+            realNodeList = new TreeMap<>();
+            vitrualNode = new TreeMap<>();
             zk = new ZooKeeper(zkConfig.getHost() + ":" + zkConfig.getPort(), 3000, this);
             return true;
         } catch (Exception e) {
@@ -54,6 +80,34 @@ public class NodeManager implements Watcher {
         }
     }
 
+    public boolean buildL2(String type){
+        dead = true;
+        if (!init())
+            return false;
+        if (!createRootNode())
+            return false;
+        if (!createNode("child", nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort())))
+            return false;
+        if (!checkAndMonitorChildStat())
+            return false;
+        dead = false;
+        node = "l2";
+        return true;
+    }
+    public boolean buildL1(String type){
+        dead = true;
+        if (!init())
+            return false;
+        if (!createRootNode())
+            return false;
+        if (!createNode("master", nettyConfig.getHostName(), String.valueOf(nettyConfig.getPort())))
+            return false;
+        if (!checkAndMonitorChildStat())
+            return false;
+        dead = false;
+        node = "l1";
+        return true;
+    }
 
     /**
      * FNV1_32_HASH hash算法
@@ -82,11 +136,17 @@ public class NodeManager implements Watcher {
             //创建该节点的子节点
             if (type.equals("master")) {
                 String path = String.format("%s%s:%s", Constant.ZK_IM_MASTER_NODE_NAME_PREFIX, name, port);
-                zk.create(path, ServerNode.L1_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                Stat stat = zk.exists(path,false);
+                if (stat == null) {
+                    zk.create(path, ServerNode.L1_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                }
                 return true;
             } else if (type.equals("child")) {
                 String path = String.format("%s%s:%s", Constant.ZK_IM_CHIID_NODE_NAME_PREFIX, name, port);
-                zk.create(path, ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                Stat stat = zk.exists(path,false);
+                if (stat == null) {
+                    zk.create(path, ServerNode.L2_ACCEPT.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                }
                 return true;
             } else {
                 return false;
@@ -223,6 +283,19 @@ public class NodeManager implements Watcher {
 
                     checkAndMonitorChildStat();
                 }
+            }
+            System.out.println("sessionId: " + zk.getSessionId() + "  keepState: " + keepState);
+            if (eventType == Event.EventType.None) {
+                switch (keepState) {
+                    case  SyncConnected:
+                        break;
+                    case Disconnected:
+                        synchronized (this) {
+                            dead = true;
+                            notifyAll();
+                        }
+                        break;
+                    }
             }
         } catch (Exception e) {
         }

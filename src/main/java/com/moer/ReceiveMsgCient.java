@@ -55,8 +55,9 @@ class ImClient extends Thread
                 result = HttpUtil.doGet(String.format(PULL_URL, serverAddr, uid, sessionId),null,null,null, 90000, 90000, 90000);
                 resultMap = JSON.parseObject(result, Map.class);
                 System.out.println(JSON.toJSONString(resultMap));
+                Thread.sleep(1000);
             }catch (Exception e){
-                System.out.println("request timeout, no data");
+                System.out.println(e.getMessage());
             }
         }
 

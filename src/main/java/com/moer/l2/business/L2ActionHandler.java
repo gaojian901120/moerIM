@@ -158,8 +158,11 @@ public class L2ActionHandler extends ActionHandler {
 
         // 更新session活跃时间
         imSession.setUpdateTime(System.currentTimeMillis());
-        List<ImMessage> messageList = imSession.getMsgQueue();
+        imSession.setStatus(0);
+        List<ImMessage> messageList = imSession.popAllMsgQueue();
+
         if (messageList != null && messageList.size() > 0) {
+            System.out.println("message size: " +  messageList.size());
             return renderResult(1000, "success", JSON.toJSON(messageList));
         } else {
             //没有数据 需要hold 业务线程池进行处理后续任务
