@@ -15,7 +15,6 @@ public class SendMsgClient {
         RedisStore redisStore = new RedisStore(ConfigUtil.loadRedisConfig());
         ImMessage imMessage = new ImMessage();
         for (int i = 0; i < 100; i++) {
-
             imMessage.setMsg("I am message " + i);
             imMessage.setMsgType(2);
             imMessage.setRecv("27711241256961");
