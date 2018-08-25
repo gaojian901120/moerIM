@@ -14,6 +14,7 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -82,6 +83,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                         session.setStatus(-1);
                         Vector<ImMessage> imMessages = session.popAllMsgQueue();
                         imMessages.add(imMessage);
+                        Collections.sort(imMessages);
                         Map<String,Object> data = new HashMap<>();
                         data.put("code",1000);
                         data.put("message",1000);

@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,6 +164,7 @@ public class L2ActionHandler extends ActionHandler {
 
         if (messageList != null && messageList.size() > 0) {
             System.out.println("message size: " +  messageList.size());
+            Collections.sort(messageList);
             return renderResult(1000, "success", JSON.toJSON(messageList));
         } else {
             //没有数据 需要hold 业务线程池进行处理后续任务

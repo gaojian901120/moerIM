@@ -14,17 +14,15 @@ public class SendMsgClient {
     public static void main(String[] args) {
         RedisStore redisStore = new RedisStore(ConfigUtil.loadRedisConfig());
         ImMessage imMessage = new ImMessage();
-        System.out.println(System.currentTimeMillis());
-
         for (int i = 0; i < 100; i++) {
+
             imMessage.setMsg("I am message " + i);
             imMessage.setMsgType(2);
             imMessage.setRecv("27711241256961");
             imMessage.setSend(String.valueOf(100809070 + i % 2));
-            imMessage.setSendTime(System.currentTimeMillis());
+            imMessage.setSendTime(System.nanoTime());
             redisStore.pubishMessage(Constant.MSG_RECV_QUEUE, JSON.toJSONString(imMessage));
         }
         System.out.println(System.currentTimeMillis());
-
     }
 }
