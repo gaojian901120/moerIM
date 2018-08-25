@@ -12,12 +12,17 @@ import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ZkConfig;
 import io.netty.util.concurrent.Future;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 
 public class L2ServiceApplication {
     public static void main(String[] args) throws Exception {
         //读取配置信息
         String host = "127.0.0.1";
-        int port = 9002;
+        System.out.print("Please input the port:");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int port = Integer.valueOf(br.readLine());
         NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
         nettyConfig.setHostName(host);
         nettyConfig.setPort(port);
