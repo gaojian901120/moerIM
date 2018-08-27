@@ -16,9 +16,11 @@ public class SendMsgClient {
         ImMessage imMessage = new ImMessage();
         for (int i = 0; i < 100; i++) {
             imMessage.setMsg("I am message " + i);
-            imMessage.setMsgType(2);
-            imMessage.setRecv("27711241256961");
-            imMessage.setSend(String.valueOf(100809070 + i % 2));
+            imMessage.setMsgType(1);
+            imMessage.setChatType(1);
+            imMessage.setShowType(1);
+            imMessage.setRecv("100809070");
+            imMessage.setSend(String.valueOf(100809071 + i % 2));
             imMessage.setSendTime(System.nanoTime());
             redisStore.pubishMessage(Constant.MSG_RECV_QUEUE, JSON.toJSONString(imMessage));
         }

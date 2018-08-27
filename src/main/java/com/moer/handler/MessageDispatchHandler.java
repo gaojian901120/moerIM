@@ -50,53 +50,65 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     @Override
     public void run() {
         //分发消息到不同的连接层节点
+        int chatType = imMessage.getChatType();
+        Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
         int sender = Integer.valueOf(imMessage.getSend());
         String recver = imMessage.getRecv();
-        Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
-        Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
-        ImGroup targetGroup = imGroupContext.get(recver);
-        if (targetGroup == null){
-            GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-            GroupInfo groupInfo= infoService.getByGid(String.valueOf(recver));
-            targetGroup = ImGroup.initImGroup(groupInfo);
-            imGroupContext.put(String.valueOf(recver),targetGroup);
-            logger.info("init group {} ",recver);
-        }
-        Map<Integer,GroupMembers> memberMap = targetGroup.userList;
-        Map<Integer,GroupMembers> blackMap = targetGroup.blackList;
-        for (GroupMembers members : memberMap.values()) {
-            int uid = members.getUid();
-            if (blackMap.containsKey(uid)){
-                continue;
+        if (chatType == 2) { //群聊
+
+            Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
+            ImGroup targetGroup = imGroupContext.get(recver);
+            if (targetGroup == null) {
+                GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
+                GroupInfo groupInfo = infoService.getByGid(String.valueOf(recver));
+                targetGroup = ImGroup.initImGroup(groupInfo);
+                imGroupContext.put(String.valueOf(recver), targetGroup);
+                logger.info("init group {} ", recver);
             }
-            Map<String,ImSession> userSessions = imUserContext.get(uid).getSessions();
+            Map<Integer, GroupMembers> memberMap = targetGroup.userList;
+            Map<Integer, GroupMembers> blackMap = targetGroup.blackList;
+            for (GroupMembers members : memberMap.values()) {
+                int uid = members.getUid();
+                if (blackMap.containsKey(uid)) {
+                    continue;
+                }
+                Map<String, ImSession> userSessions = imUserContext.get(uid).getSessions();
+                //说明用户不在线
+                dispatchMsgInSessions(userSessions);
+            }
+        }else if (chatType == 1) {//单聊
+            Map<String, ImSession> userSessions = imUserContext.get(Integer.valueOf(recver)).getSessions();
             //说明用户不在线
-            if (userSessions == null  || userSessions.size() == 0){
-                continue;
-            }
-            for (ImSession session : userSessions.values()){
-                Channel channel = session.getChannel();
-                session.setUpdateTime(System.currentTimeMillis());
-                if (channel != null) {
-                    //channel活跃只表示socket有效 可能多个请求使用同一个channel
-                    if (channel.isActive() && session.getStatus() == 0) {
-                        session.setStatus(-1);
-                        Vector<ImMessage> imMessages = session.popAllMsgQueue();
-                        imMessages.add(imMessage);
-                        Collections.sort(imMessages);
-                        Map<String,Object> data = new HashMap<>();
-                        data.put("code",1000);
-                        data.put("message",1000);
-                        data.put("data",imMessages);
-                        System.out.println("message size: " +  imMessages.size());
-                        L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
-                    }else {
-                        //session 对应的请求 还没有过来 保持在服务器上临时存储
-                        session.pushMsg(imMessage);
-                    }
+            dispatchMsgInSessions(userSessions);
+
+        }
+    }
+    private void dispatchMsgInSessions(Map<String, ImSession> userSessions)
+    {
+        if (userSessions == null || userSessions.size() == 0) {
+            return;
+        }
+        for (ImSession session : userSessions.values()) {
+            Channel channel = session.getChannel();
+            session.setUpdateTime(System.currentTimeMillis());
+            if (channel != null) {
+                //channel活跃只表示socket有效 可能多个请求使用同一个channel
+                if (channel.isActive() && session.getStatus() == 0) {
+                    session.setStatus(-1);
+                    Vector<ImMessage> imMessages = session.popAllMsgQueue();
+                    imMessages.add(imMessage);
+                    Collections.sort(imMessages);
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("code", 1000);
+                    data.put("message", 1000);
+                    data.put("data", imMessages);
+                    System.out.println("message size: " + imMessages.size());
+                    L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
+                } else {
+                    //session 对应的请求 还没有过来 保持在服务器上临时存储
+                    session.pushMsg(imMessage);
                 }
             }
-
         }
     }
 }
