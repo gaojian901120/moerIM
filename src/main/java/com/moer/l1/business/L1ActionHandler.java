@@ -2,6 +2,7 @@ package com.moer.l1.business;
 
 import com.alibaba.fastjson.JSON;
 import com.moer.common.ActionHandler;
+import com.moer.common.Constant;
 import com.moer.l1.bean.InitResponseBean;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
@@ -49,25 +50,17 @@ public class L1ActionHandler extends ActionHandler {
                     irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
                     irb.token = nodeManager.getNodeHash();
                     irb.uid =uid;
-                    result = renderResult(1000, "success", irb);
+                    result = renderResult(Constant.CODE_SUCCESS, irb);
                 } else {
-                    result = renderResult(1002, "no server to service", null);
+                    result = renderResult(Constant.CODE_NO_SERVER_NODE, null);
                 }
             } else {
-                result = renderResult(1001, "user not login", null);
+                result = renderResult(Constant.CODE_UNLOGIN, null);
             }
 
         } else {
-            result = renderResult(1001, "user not login", null);
+            result = renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }
         return result;
-    }
-
-    public String renderResult(int code, String message, Object data) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("code", code);
-        map.put("message", message);
-        map.put("data", data);
-        return JSON.toJSONString(map);
     }
 }

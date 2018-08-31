@@ -6,6 +6,9 @@ import com.moer.entity.ImMessage;
 import com.moer.redis.RedisStore;
 import com.moer.util.ConfigUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by gaoxuejian on 2018/5/2.
  */
@@ -22,6 +25,9 @@ public class SendMsgClient {
             imMessage.setRecv("100809070");
             imMessage.setSend(String.valueOf(100809071 + i % 2));
             imMessage.setSendTime(System.nanoTime());
+            Map<String,Object> ext = new HashMap<>();
+            ext.put("priority",i%10);
+            imMessage.setExtp(JSON.toJSONString(ext));
             redisStore.pubishMessage(Constant.MSG_RECV_QUEUE, JSON.toJSONString(imMessage));
         }
         System.out.println(System.currentTimeMillis());

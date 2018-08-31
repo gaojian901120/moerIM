@@ -14,6 +14,7 @@ import com.moer.service.ServiceFactory;
 import redis.clients.jedis.JedisPubSub;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,15 @@ public class RedisMessageHandler extends JedisPubSub {
     public void onMessage(String channel, String message) {
         if (channel.equals(Constant.MSG_RECV_QUEUE)) {
             ImMessage imMessage = JSON.parseObject(message, ImMessage.class);
-            MessageDispatchHandler handler = new MessageDispatchHandler(1, imMessage);
+            String  extp = imMessage.getExtp();
+            int priority = 5;
+            if (extp != null && extp != ""){
+                Map<String,Object> extMap = (Map<String,Object>)JSON.parseObject(extp);
+                if (extMap.containsKey("priority")) {
+                    priority = Integer.valueOf(extMap.get("priority").toString());
+                }
+            }
+            MessageDispatchHandler handler = new MessageDispatchHandler(priority, imMessage);
             DispatchServer.dispatchMsg(handler);
         }else if (channel.equals(Constant.DATA_SYNC_QUEUE)) {
             Map<String,Object> event = (Map<String, Object>) JSON.parse(message);

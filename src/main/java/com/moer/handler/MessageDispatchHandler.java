@@ -3,6 +3,7 @@ package com.moer.handler;
 import com.alibaba.fastjson.JSON;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
+import com.moer.common.Constant;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
@@ -24,7 +25,7 @@ import java.util.Vector;
  */
 public class MessageDispatchHandler implements Runnable, Comparable<MessageDispatchHandler> {
     public static Logger logger = LoggerFactory.getLogger(MessageDispatchHandler.class);
-    private int priority;
+    private int priority; //消息优先级 默认为5   值越大 优先级越高
     private ImMessage imMessage;
 
     public MessageDispatchHandler(int priority, ImMessage imMessage) {
@@ -50,12 +51,17 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     @Override
     public void run() {
         //分发消息到不同的连接层节点
+        System.out.println("当前投递的消息的优先级为：" + priority);
+        try{
+            Thread.sleep(10);
+        }catch (Exception e){
+
+        }
         int chatType = imMessage.getChatType();
         Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
         int sender = Integer.valueOf(imMessage.getSend());
         String recver = imMessage.getRecv();
         if (chatType == 2) { //群聊
-
             Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
             ImGroup targetGroup = imGroupContext.get(recver);
             if (targetGroup == null) {
@@ -99,8 +105,8 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     imMessages.add(imMessage);
                     Collections.sort(imMessages);
                     Map<String, Object> data = new HashMap<>();
-                    data.put("code", 1000);
-                    data.put("message", 1000);
+                    data.put("code", Constant.CODE_SUCCESS);
+                    data.put("message", "push message success");
                     data.put("data", imMessages);
                     System.out.println("message size: " + imMessages.size());
                     L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));

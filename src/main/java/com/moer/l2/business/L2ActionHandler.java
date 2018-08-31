@@ -2,6 +2,7 @@ package com.moer.l2.business;
 
 import com.alibaba.fastjson.JSON;
 import com.moer.common.ActionHandler;
+import com.moer.common.Constant;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImMessage;
@@ -44,7 +45,7 @@ public class L2ActionHandler extends ActionHandler {
         Map<String, String> paramMap = new HashMap<>();
         String result = "";
         if (!method.equals(HttpMethod.GET)) {
-            return renderResult(1001, "invalid request method", null);
+            return renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }
         String uri = request.uri();
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
@@ -53,19 +54,19 @@ public class L2ActionHandler extends ActionHandler {
         });
         //@TODO uid不再通过参数传递  通过解密参数获取
         if (!paramMap.containsKey("uid") || !paramMap.containsKey("token") || !paramMap.containsKey("source")) {
-            return renderResult(1001, "invalid request params", null);
+            return renderResult(Constant.CODE_PARAM_ERROR, null);
         }
         int uid = Integer.valueOf(paramMap.get("uid"));
         String token = paramMap.get("token");
         String source = paramMap.get("source");
         if (!source.equals(ImSession.SESSION_SOURCE_APP) && !source.equals(ImSession.SESSION_SOURCE_WEB)) {
-            return renderResult(1001, "invalid request source", null);
+            return renderResult(Constant.CODE_INVALID_SOURCE, null);
         }
 
         NodeManager nodeManager = NodeManager.getInstance();
         String serverHash = nodeManager.getNodeHash();
         if (!token.equals(serverHash)) {
-            return renderResult(1001, "invalid server node，please refresh server info", null);
+            return renderResult(Constant.CODE_NODE_EXPIRED, null);
         }
         //每次连接生成一个新的session
         ImSession imSession = new ImSession();
@@ -118,7 +119,7 @@ public class L2ActionHandler extends ActionHandler {
             data.put("uid",String.valueOf(uid));
             result = renderResult(1000, "connect success", data);
         } else {
-            result = renderResult(1002, "the user request the error service node", null);
+            result = renderResult(Constant.CODE_NODE_EXPIRED, null);
         }
         return result;
     }
@@ -137,7 +138,7 @@ public class L2ActionHandler extends ActionHandler {
         Map<String, String> paramMap = new HashMap<>();
         String result = "";
         if (!method.equals(HttpMethod.GET)) {
-            return renderResult(1001, "invalid request method", null);
+            return renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }
         String uri = request.uri();
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
@@ -146,13 +147,13 @@ public class L2ActionHandler extends ActionHandler {
         });
         //@TODO uid不再通过参数传递  通过解密参数获取
         if (!paramMap.containsKey("sessionid") || !paramMap.containsKey("uid")) {
-            return renderResult(1001, "invalid request params", null);
+            return renderResult(Constant.CODE_PARAM_ERROR, null);
         }
         int uid = Integer.valueOf(paramMap.get("uid"));
         String sessionId = paramMap.get("sessionid");
         Map<String, ImSession> sessionMap = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
         if (sessionMap == null || !sessionMap.containsKey(sessionId)) {
-            return renderResult(1001, "please connect the server node first", null);
+            return renderResult(Constant.CODE_UNCONNECT, null);
         }
 
         ImSession imSession = sessionMap.get(sessionId);
@@ -165,7 +166,7 @@ public class L2ActionHandler extends ActionHandler {
         if (messageList != null && messageList.size() > 0) {
             System.out.println("message size: " +  messageList.size());
             Collections.sort(messageList);
-            return renderResult(1000, "success", JSON.toJSON(messageList));
+            return renderResult(Constant.CODE_SUCCESS, JSON.toJSON(messageList));
         } else {
             //没有数据 需要hold 业务线程池进行处理后续任务
             //模拟异步提交任务

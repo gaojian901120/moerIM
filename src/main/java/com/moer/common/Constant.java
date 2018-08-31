@@ -1,5 +1,8 @@
 package com.moer.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by gaoxuejian on 2018/5/3.
  */
@@ -15,4 +18,24 @@ public class Constant {
     public static final String ZK_IM_MASTER_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/master:"; //格式 prefix:ip:port
 
     public static final String REDIS_KEY_GROUP_ONLINENUM = "im:group:onlinenum:";
+
+    public static final int CODE_SUCCESS = 1000;
+    public static final int CODE_INVALID_REQUEST_METHOD = 1001;
+    public static final int CODE_UNLOGIN = 1002;
+    public static final int CODE_INVALID_SOURCE = 1003;
+    public static final int CODE_NODE_EXPIRED = 1004;
+    public static final int CODE_PARAM_ERROR = 1005;
+    public static final int CODE_NO_SERVER_NODE = 1006;
+    public static final int CODE_UNCONNECT = 1007;
+    public static Map<Integer, String> codeMap = new HashMap<>();
+    static {
+        codeMap.put(CODE_SUCCESS,"success");
+        codeMap.put(CODE_UNLOGIN, "user not login");
+        codeMap.put(CODE_INVALID_REQUEST_METHOD, "invalid request method");
+        codeMap.put(CODE_INVALID_SOURCE,"invalid request source");
+        codeMap.put(CODE_NODE_EXPIRED,"server info expired, please refresh server list");
+        codeMap.put(CODE_PARAM_ERROR, "param error");
+        codeMap.put(CODE_NO_SERVER_NODE, "no server to service, maybe the server node is down");
+        codeMap.put(CODE_UNCONNECT, "please connect the server node first");
+    }
 }
