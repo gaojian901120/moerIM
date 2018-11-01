@@ -35,6 +35,8 @@ public class L1EntryApplication {
     public static final Logger logger = LoggerFactory.getLogger(L1EntryApplication.class);
 
     public static void main(String[] args) {
+
+
         //连接zookeeper
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
         NettyConfig nettyConfig = ConfigUtil.loadNettyConfig();
