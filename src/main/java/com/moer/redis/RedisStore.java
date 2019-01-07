@@ -179,10 +179,46 @@ public class RedisStore {
         }
         return 0L;
     }
+    public Long hincr(String key, String field, long num)
+    {
+        if (key == null) return 0L;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.hincrBy(key,field, num);
+        }catch (Exception e){ }
+        finally {
+            closeRedis(jedis);
+        }
+        return 0L;
+    }
     private void closeRedis(Jedis jedis)
     {
         if (null != jedis) {
             jedis.close();
+        }
+    }
+
+    public boolean hset(String key, String field, String valu){
+        if (key == null) return false;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.hset(key,field,valu) == 1 ? true : false;
+        }catch (Exception e){return false;}
+        finally {
+            closeRedis(jedis);
+        }
+    }
+    public boolean hdel(String key, String field){
+        if (key == null) return false;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.hdel(key,field) == 1 ? true : false;
+        }catch (Exception e){return false;}
+        finally {
+            closeRedis(jedis);
         }
     }
 }

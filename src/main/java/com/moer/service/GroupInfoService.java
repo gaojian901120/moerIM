@@ -25,7 +25,7 @@ public class GroupInfoService
     public boolean setOnlineNum(String gid, int num)
     {
         RedisStore redisStore = ServiceFactory.getRedis();
-        return redisStore.set(Constant.REDIS_KEY_GROUP_ONLINENUM + gid, String.valueOf(num));
+        return redisStore.hset(Constant.REDIS_GROUP_STATUS + gid, Constant.REDIS_GROUP_STATUS_FIELD_ONLINENUM, String.valueOf(num));
     }
 
     /**
@@ -36,6 +36,6 @@ public class GroupInfoService
      */
     public Long incrOnlineNum(String gid, int num){
         RedisStore redisStore = ServiceFactory.getRedis();
-        return redisStore.incr(Constant.REDIS_KEY_GROUP_ONLINENUM + gid, num);
+        return redisStore.hincr(Constant.REDIS_GROUP_STATUS + gid,Constant.REDIS_GROUP_STATUS_FIELD_ONLINENUM, num);
     }
 }

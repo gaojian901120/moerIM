@@ -34,6 +34,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -51,7 +52,7 @@ public class HttpUtil {
     final static int CONNECT_TIMEOUT = 3000;
     final static int REQUEST_TIMEOUT = 5000;
     final static int SOCKET_TIMEOUT = 3000;
-    final static int MAX_RETRY = 5;
+    final static int MAX_RETRY = 1;
     public static HttpUtil httpUtil = new HttpUtil();
     private PoolingHttpClientConnectionManager cm = null;
     private CloseableHttpClient closeableHttpClient = null;
@@ -66,9 +67,9 @@ public class HttpUtil {
                 .build();
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
         // 将最大连接数增加到200
-        cm.setMaxTotal(200);
+        cm.setMaxTotal(50000);
         // 将每个路由基础的连接增加到20
-        cm.setDefaultMaxPerRoute(20);
+        cm.setDefaultMaxPerRoute(50000);
         //请求重试处理
         HttpRequestRetryHandler httpRequestRetryHandler = new HttpRequestRetryHandler() {
             public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
@@ -103,16 +104,16 @@ public class HttpUtil {
         RequestConfig requestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD_STRICT).build();
         closeableHttpClient = HttpClients.custom()
                 .setConnectionManager(cm)
-                .setRetryHandler(httpRequestRetryHandler)
+                //.setRetryHandler(httpRequestRetryHandler)
                 .setDefaultRequestConfig(requestConfig)
                 .build();
     }
 
-    public static String doGet(String url, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword, int requestTimeout, int connentTimeout, int socketTimeout) {
+    public static String doGet(String url, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword, int requestTimeout, int connentTimeout, int socketTimeout) throws Exception {
         HttpGet httpGet = new HttpGet(url);
         return httpUtil.exec(httpGet, headers, cookies, userPassword, requestTimeout, connentTimeout, socketTimeout);
     }
-    public static String doGet(String url, Map<String, String> maps) {
+    public static String doGet(String url, Map<String, String> maps) throws Exception{
         HttpGet httpGet = new HttpGet(url);
         if (null != maps && maps.size() > 0) {
             List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -132,30 +133,30 @@ public class HttpUtil {
         return httpUtil.exec(httpGet, null, null, null, REQUEST_TIMEOUT, CONNECT_TIMEOUT, SOCKET_TIMEOUT);
     }
 
-    public static String doGet(String url) {
+    public static String doGet(String url) throws Exception{
         HttpGet httpGet = new HttpGet(url);
         return httpUtil.exec(httpGet, null, null, null, REQUEST_TIMEOUT, CONNECT_TIMEOUT, SOCKET_TIMEOUT);
     }
 
-    public static String doPost(String url, String postBody, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword) {
+    public static String doPost(String url, String postBody, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword) throws Exception{
         HttpPost httpPost = new HttpPost(url);
         StringEntity entity = new StringEntity(postBody, "UTF-8");
         httpPost.setEntity(entity);
         return httpUtil.exec(httpPost, headers, cookies, userPassword, REQUEST_TIMEOUT, CONNECT_TIMEOUT, SOCKET_TIMEOUT);
     }
 
-    public static String doPost(String url, String postBody, int requestTimeout, int connectTimeout, int socketTimeout) {
+    public static String doPost(String url, String postBody, int requestTimeout, int connectTimeout, int socketTimeout)throws Exception {
         HttpPost httpPost = new HttpPost(url);
         StringEntity entity = new StringEntity(postBody, "UTF-8");
         httpPost.setEntity(entity);
         return httpUtil.exec(httpPost, null, null, null, requestTimeout, connectTimeout, socketTimeout);
     }
 
-    public static String doPost(String url, Map<String, String> maps) {
+    public static String doPost(String url, Map<String, String> maps)throws Exception{
         return doPost(url, maps, REQUEST_TIMEOUT, CONNECT_TIMEOUT, SOCKET_TIMEOUT);
     }
 
-    private static String doPost(String url, Map<String, String> maps, int requestTimeout, int connentTimeout, int socketTimeout) {
+    private static String doPost(String url, Map<String, String> maps, int requestTimeout, int connentTimeout, int socketTimeout) throws Exception {
         HttpPost httpPost = new HttpPost(url);
         if (null != maps && maps.size() > 0) {
             List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -241,7 +242,7 @@ public class HttpUtil {
         httpRequest.setHeader("Cookie", new String(sb));
     }
 
-    private String exec(HttpRequestBase httprequest, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword, int requestTimeout, int connentTimeout, int socketTimeout) {
+    private String exec(HttpRequestBase httprequest, Map<String, String> headers, Map<String, String> cookies, NameValuePair userPassword, int requestTimeout, int connentTimeout, int socketTimeout) throws Exception{
         CloseableHttpResponse response = null;
         String result = null;
         try {
@@ -259,16 +260,12 @@ public class HttpUtil {
             response = closeableHttpClient.execute(httprequest, context);
             HttpEntity httpEntity = response.getEntity();
             result = EntityUtils.toString(httpEntity);
-        } catch (IOException ioe) {
-            //LogUtil.error(ioe, "http client request  with url:[%s] ", httprequest.getURI());
-        } finally {
-            try {
-                response.close();
-
-            } catch (IOException ioe) {
-                //LogUtil.error(ioe, "close http response with url:[%s] ", httprequest.getURI());
-            }
+            response.close();
             return result;
+        } catch (ConnectTimeoutException ioe) {
+           throw ioe;
+        } catch (SocketTimeoutException ste){
+            throw ste;
         }
     }
 

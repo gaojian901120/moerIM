@@ -3,11 +3,13 @@ package com.moer.l2;
 import com.alibaba.fastjson.JSON;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
+import com.moer.common.Constant;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
+import com.moer.redis.RedisStore;
 import com.moer.service.GroupInfoService;
 import com.moer.service.GroupMembersService;
 import com.moer.service.ServiceFactory;
@@ -126,6 +128,9 @@ public class L2ApplicationContext {
      */
     public void logout(ImSession imSession,String message)
     {
+        logout(imSession,message,1000);
+    }
+    public void logout(ImSession imSession,String message, int code){
         System.out.println("logout------------:" + imSession.getUid() + ", message:" + message);
         if (imSession == null)
             return;
@@ -148,16 +153,17 @@ public class L2ApplicationContext {
         Channel channel = imSession.getChannel();
         if (channel.isActive()) {
             Map<String, Object> map = new HashMap<>();
-            map.put("code", 1000);
+            map.put("code", code);
             map.put("message", "user logout");
             map.put("data", message);
             sendResponse(channel,JSON.toJSONString(map));
         }
         //移除用户在线session
         delOnlineUserSession(imSession);
-
+        RedisStore redis = ServiceFactory.getRedis();
+        redis.hdel(Constant.REDIS_USER_STATUS+imSession.getUid(),Constant.REDIS_USER_STATUS_FIELD_ONLINE);
+        redis.hdel(Constant.REDIS_USER_ONLINE_SET, imSession.getUid() + "");
     }
-
     public void sendResponse(Channel channel, String msg)
     {
         try {
@@ -165,8 +171,7 @@ public class L2ApplicationContext {
             response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
             response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
             response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-            channel.write(response);
-            channel.flush();
+            channel.writeAndFlush(response);
         }catch (Exception e){
 
         }

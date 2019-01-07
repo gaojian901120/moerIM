@@ -17,7 +17,19 @@ public class Constant {
     public static final String ZK_IM_CHIID_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/child:"; //格式 prefix:ip:port  data 保存当前节点的状态
     public static final String ZK_IM_MASTER_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/master:"; //格式 prefix:ip:port
 
-    public static final String REDIS_KEY_GROUP_ONLINENUM = "im:group:onlinenum:";
+    //群组在线人数
+    public static final String REDIS_GROUP_STATUS = "im:group:status:";
+    public static final String REDIS_GROUP_STATUS_FIELD_ONLINENUM = "onlinenum";//直播間在綫人數
+    public static final String REDIS_GROUP_STATUS_FIELD_LAST_MSG = "lastmsg";//最新的一条消息
+
+    //用户状态hset
+    public static final String REDIS_USER_STATUS = "im:user:status:";
+    public static final String REDIS_USER_STATUS_FIELD_ONLINE = "online"; //用戶在綫狀態
+    public static final String USER_ONLINE = "1";
+    public static final String USER_OFFLINE = "0";
+
+    //所有在线用户集合
+    public static final String REDIS_USER_ONLINE_SET = "im:set:onlineuser";
 
     public static final int CODE_SUCCESS = 1000;
     public static final int CODE_INVALID_REQUEST_METHOD = 1001;
@@ -27,6 +39,7 @@ public class Constant {
     public static final int CODE_PARAM_ERROR = 1005;
     public static final int CODE_NO_SERVER_NODE = 1006;
     public static final int CODE_UNCONNECT = 1007;
+    public static final int CODE_MULTI_END_ERROR = 1008;
     public static Map<Integer, String> codeMap = new HashMap<>();
     static {
         codeMap.put(CODE_SUCCESS,"success");
@@ -37,5 +50,6 @@ public class Constant {
         codeMap.put(CODE_PARAM_ERROR, "param error");
         codeMap.put(CODE_NO_SERVER_NODE, "no server to service, maybe the server node is down");
         codeMap.put(CODE_UNCONNECT, "please connect the server node first");
+        codeMap.put(CODE_MULTI_END_ERROR, "multiend login");
     }
 }

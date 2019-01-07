@@ -63,6 +63,7 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("channel channelInactive");
+
         super.channelInactive(ctx);
     }
 

@@ -33,10 +33,12 @@ public class TimerThread extends Thread
             if (type == TimerTask.TASK_SESSION_CHECK) {
                 ImSession imSession = (ImSession)task.getData();
                 long updateTime = imSession.getUpdateTime();
-                if (imSession.getChannel().isActive() ||curTime - updateTime <=10000 ){//10s内活跃 或者当前连接hold 则用户在线
+                if (imSession.getChannel().isActive() ||curTime - updateTime <=30000 ){//30s内活跃 或者当前连接hold 则用户在线
                     task.setExecTime(execTime+10000);
                     taskLisk.add(task);
                 }else  {
+                    System.out.println("timerthread用户" + imSession.getUid() + "活跃时间：" + imSession.getUpdateTime());
+
                     L2ApplicationContext.getInstance().logout(imSession, "user session expired");
                 }
             }

@@ -13,16 +13,25 @@ import java.util.Map;
  * Created by gaoxuejian on 2018/5/2.
  */
 public class SendMsgClient {
-
+    public  static int reverseBits( int n) {
+        int c = 0;
+        int b = 0x01;
+        while(n >0){
+            int l = n & b;
+            if (l==1) c++;
+            n= n >> 1;
+        }
+        return c;
+    }
     public static void main(String[] args) {
         RedisStore redisStore = new RedisStore(ConfigUtil.loadRedisConfig());
         ImMessage imMessage = new ImMessage();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             imMessage.setMsg("I am message " + i);
             imMessage.setMsgType(1);
             imMessage.setChatType(1);
             imMessage.setShowType(1);
-            imMessage.setRecv("100809070");
+            imMessage.setRecv("100");
             imMessage.setSend(String.valueOf(100809071 + i % 2));
             imMessage.setSendTime(System.nanoTime());
             Map<String,Object> ext = new HashMap<>();

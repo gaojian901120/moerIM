@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 public class L2ServiceApplication {
     public static void main(String[] args) throws Exception {
         //读取配置信息
-        String host = "127.0.0.1";
+        String host = "172.16.9.218";
         System.out.print("Please input the port:");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int port = Integer.valueOf(br.readLine());

@@ -52,11 +52,6 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     public void run() {
         //分发消息到不同的连接层节点
         System.out.println("当前投递的消息的优先级为：" + priority);
-        try{
-            Thread.sleep(10);
-        }catch (Exception e){
-
-        }
         int chatType = imMessage.getChatType();
         Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
         int sender = Integer.valueOf(imMessage.getSend());
@@ -72,18 +67,18 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 logger.info("init group {} ", recver);
             }
             Map<Integer, GroupMembers> memberMap = targetGroup.userList;
-            Map<Integer, GroupMembers> blackMap = targetGroup.blackList;
+            Map<Integer, Integer> blackMap = L2ApplicationContext.getInstance().IMUserContext.get(targetGroup.groupInfo.getOwner()).userBlackList;
             for (GroupMembers members : memberMap.values()) {
                 int uid = members.getUid();
                 if (blackMap.containsKey(uid)) {
                     continue;
                 }
                 Map<String, ImSession> userSessions = imUserContext.get(uid).getSessions();
-                //说明用户不在线
                 dispatchMsgInSessions(userSessions);
             }
         }else if (chatType == 1) {//单聊
             Map<String, ImSession> userSessions = imUserContext.get(Integer.valueOf(recver)).getSessions();
+
             //说明用户不在线
             dispatchMsgInSessions(userSessions);
 
@@ -91,16 +86,20 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     }
     private void dispatchMsgInSessions(Map<String, ImSession> userSessions)
     {
+        System.out.println("userSessions:" +userSessions);
         if (userSessions == null || userSessions.size() == 0) {
             return;
         }
         for (ImSession session : userSessions.values()) {
             Channel channel = session.getChannel();
             session.setUpdateTime(System.currentTimeMillis());
+            System.out.println("sessionActive:" + channel.isActive());
+            System.out.println("sessionStatus:" + session.getStatus());
+            System.out.println("SessionId:" + session.getSeeesionId() +" Uid: " + session.getUid() + "ChannelId: " + session.getChannel().id());
+
             if (channel != null) {
                 //channel活跃只表示socket有效 可能多个请求使用同一个channel
-                if (channel.isActive() && session.getStatus() == 0) {
-                    session.setStatus(-1);
+                if (session.getStatus() == 0) {
                     Vector<ImMessage> imMessages = session.popAllMsgQueue();
                     imMessages.add(imMessage);
                     Collections.sort(imMessages);
@@ -110,6 +109,8 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     data.put("data", imMessages);
                     System.out.println("message size: " + imMessages.size());
                     L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
+                    session.setStatus(-1);
+
                 } else {
                     //session 对应的请求 还没有过来 保持在服务器上临时存储
                     session.pushMsg(imMessage);

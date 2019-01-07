@@ -20,12 +20,6 @@ public class ImGroup {
     public Map<Integer, GroupMembers> userList = new ConcurrentHashMap<>();
 
     /**
-     * 直播间黑名单成员集合  在黑名单中的成员不会给他推送消息  同时也不能发送消息
-     * 用户connect的时候更新黑名单用户列表 后续过期或者被人踢出去的时候 通过redis事件更新
-     */
-    public Map<Integer, GroupMembers> blackList = new ConcurrentHashMap<Integer, GroupMembers>();
-
-    /**
      * ImGroup 是GroupInfo的封装 实例化的时候必须指定一个groupInfo
      * @param groupInfo
      * @return

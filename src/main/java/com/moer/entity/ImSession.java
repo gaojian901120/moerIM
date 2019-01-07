@@ -38,7 +38,7 @@ public class ImSession {
     private long createTime;
     /**
      * 当前会话所对应的连接
-     * 一个channel其实就是一个scoket  当一个 进程内没有断开的时候 可以被重复使用
+     * 当用户http请求结束时 如果没有复用连接则下次请求会使用新的链接channelid会改变
      */
     private Channel channel;
 

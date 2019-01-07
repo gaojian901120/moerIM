@@ -21,7 +21,8 @@ public class ImUser {
      * 用户首次connect的时候会生成一个session，过期退出登录 进行清理
      */
     private Map<String, ImSession> sessions =  new ConcurrentHashMap<>();
-
+    //用户黑名单
+    public Map<Integer,Integer> userBlackList = new ConcurrentHashMap<>();
     /**
      * 用户的未读消息数
      * 根据消息序列号进行计算
