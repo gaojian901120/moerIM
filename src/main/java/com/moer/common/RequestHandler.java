@@ -46,7 +46,7 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
                 FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
                 httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
                 httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
-                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+//                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                 ctx.write(httpResponse);
                 ctx.flush();
             }

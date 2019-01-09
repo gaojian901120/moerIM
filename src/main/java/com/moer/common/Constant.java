@@ -34,7 +34,7 @@ public class Constant {
     public static final int CODE_SUCCESS = 1000;
     public static final int CODE_INVALID_REQUEST_METHOD = 1001;
     public static final int CODE_UNLOGIN = 1002;
-    public static final int CODE_INVALID_SOURCE = 1003;
+    public static final int CODE_INVALID_SOURCE = 1008;
     public static final int CODE_NODE_EXPIRED = 1004;
     public static final int CODE_PARAM_ERROR = 1005;
     public static final int CODE_NO_SERVER_NODE = 1006;

@@ -2,19 +2,19 @@ package com.moer.service;
 
 import com.moer.bean.GroupInfo;
 import com.moer.common.Constant;
+import com.moer.common.MapperFactory;
+import com.moer.common.ServiceFactory;
 import com.moer.dao.mysql.GroupInfoMapper;
 import com.moer.redis.RedisStore;
-import org.apache.ibatis.session.SqlSession;
 
 /**
  * Created by gaoxuejian on 2018/6/20.
  */
-public class GroupInfoService
+public class GroupInfoService extends BaseService
 {
     public GroupInfo getByGid(String gid)
     {
-        SqlSession sqlSession = ServiceFactory.getSqlSession();
-        GroupInfoMapper groupInfoMapper = sqlSession.getMapper(GroupInfoMapper.class);
+        GroupInfoMapper groupInfoMapper = MapperFactory.createMapper(GroupInfoMapper.class, DATA_SOURCE_LIVE);
         return groupInfoMapper.selectByGid(gid);
     }
 

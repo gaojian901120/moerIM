@@ -10,15 +10,12 @@ import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.service.GroupInfoService;
-import com.moer.service.ServiceFactory;
+import com.moer.common.ServiceFactory;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by gaoxuejian on 2018/5/3.
@@ -62,15 +59,20 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             if (targetGroup == null) {
                 GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
                 GroupInfo groupInfo = infoService.getByGid(String.valueOf(recver));
-                targetGroup = ImGroup.initImGroup(groupInfo);
+                targetGroup = L2ApplicationContext.getInstance().initImGroup(groupInfo);
                 imGroupContext.put(String.valueOf(recver), targetGroup);
                 logger.info("init group {} ", recver);
             }
-            Map<Integer, GroupMembers> memberMap = targetGroup.userList;
-            Map<Integer, Integer> blackMap = L2ApplicationContext.getInstance().IMUserContext.get(targetGroup.groupInfo.getOwner()).userBlackList;
+            Map<Integer, GroupMembers> memberMap = targetGroup.getUserList();
+            Map<Integer, Integer> blackMap = null;
+            Integer owner = targetGroup.groupInfo.getOwner();
+            if(imUserContext.containsKey(owner)){
+
+            }
+            Set<Integer> userBlackList =  L2ApplicationContext.getInstance().UserBlackContext.get(targetGroup.groupInfo.getOwner());
             for (GroupMembers members : memberMap.values()) {
                 int uid = members.getUid();
-                if (blackMap.containsKey(uid)) {
+                if (userBlackList.contains(uid)) {
                     continue;
                 }
                 Map<String, ImSession> userSessions = imUserContext.get(uid).getSessions();
@@ -106,7 +108,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     Map<String, Object> data = new HashMap<>();
                     data.put("code", Constant.CODE_SUCCESS);
                     data.put("message", "push message success");
-                    data.put("data", imMessages);
+                    data.put("data", L2ApplicationContext.getInstance().convertMessage(imMessages));
                     System.out.println("message size: " + imMessages.size());
                     L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
                     session.setStatus(-1);

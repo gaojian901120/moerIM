@@ -6,7 +6,7 @@ import com.moer.handler.RedisMessageHandler;
 import com.moer.redis.RedisConfig;
 import com.moer.redis.RedisStore;
 import com.moer.server.PushMessageServer;
-import com.moer.service.ServiceFactory;
+import com.moer.common.ServiceFactory;
 import com.moer.util.ConfigUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ZkConfig;

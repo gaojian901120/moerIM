@@ -1,12 +1,7 @@
-package com.moer.service;
+package com.moer.common;
 
 import com.moer.redis.RedisConfig;
 import com.moer.redis.RedisStore;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,17 +14,14 @@ import java.util.Map;
  */
 public class ServiceFactory
 {
-    private static SqlSessionFactory sessionFactory;
     private static Logger logger = LoggerFactory.getLogger(ServiceFactory.class);
     private static Map<String,Object> serviceMap = new HashMap<>();
     private static RedisStore redisStore;
     public static boolean init(RedisConfig redisConfig) {
         try {
-            sessionFactory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsStream("mybatis-conf.xml"));
             redisStore = new RedisStore(redisConfig);
             return true;
         } catch (Exception e) {
-            logger.error("init mybaits conf failed with excetion:" + e.getMessage());
             return false;
         }
     }
@@ -58,17 +50,6 @@ public class ServiceFactory
                 return null;
             }
         }
-    }
-
-    /**
-     * 获取数据库的sqlsession
-     * @return
-     */
-    public static SqlSession getSqlSession()
-    {
-        //@TODO
-        // 通过SqlSessionManager获取到的sqlsession 是线程安全的 因为service是单利 但是必须保证里面使用到的连接是线程安全的 包括redis 和其他网络连接
-        return SqlSessionManager.newInstance(sessionFactory);
     }
 
     /**

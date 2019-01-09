@@ -8,7 +8,7 @@
 
     <context id="MysqlTables" targetRuntime="MyBatis3">
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://172.16.10.22:63306/moer_live"
+                        connectionURL="jdbc:mysql://172.16.10.22:63306/moer"
                         userId="moer_user"
                         password="moerJR6k7h">
         </jdbcConnection>
@@ -37,29 +37,37 @@
                              targetProject="G:\projects\moerIM\src\main\java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
-        <table tableName="group_members"
-               domainObjectName="GroupMembers"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false"
-               enableSelectByExample="false"
-               selectByExampleQueryId="false"
-        />
-        <table tableName="group_history_message"
-               domainObjectName="GroupHistoryMessage"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false"
-               enableSelectByExample="false"
-               selectByExampleQueryId="false"
-        />
-        <table tableName="group_info"
-               domainObjectName="GroupInfo"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false"
-               enableSelectByExample="false"
-               selectByExampleQueryId="false"
+        <!--<table tableName="group_members"-->
+               <!--domainObjectName="GroupMembers"-->
+               <!--enableCountByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+        <!--/>-->
+        <!--<table tableName="group_history_message"-->
+               <!--domainObjectName="GroupHistoryMessage"-->
+               <!--enableCountByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+        <!--/>-->
+        <!--<table tableName="group_info"-->
+               <!--domainObjectName="GroupInfo"-->
+               <!--enableCountByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+        <!--/>-->
+        <table tableName="m_user_black"
+               domainObjectName="UserBlack"
+               enableCountByExample="true"
+               enableUpdateByExample="true"
+               enableDeleteByExample="true"
+               enableSelectByExample="true"
+               selectByExampleQueryId="true"
         />
 
     </context>

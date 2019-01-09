@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
+import com.moer.common.ServiceFactory;
 import com.moer.dao.mysql.GroupMembersMapper;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.server.DispatchServer;
 import com.moer.service.GroupInfoService;
-import com.moer.service.ServiceFactory;
 import redis.clients.jedis.JedisPubSub;
 
 import java.text.SimpleDateFormat;
@@ -29,7 +29,18 @@ public class RedisMessageHandler extends JedisPubSub {
     @Override
     public void onMessage(String channel, String message) {
         if (channel.equals(Constant.MSG_RECV_QUEUE)) {
-            ImMessage imMessage = JSON.parseObject(message, ImMessage.class);
+            Map<String,Object> messageMap = JSON.parseObject(message,Map.class);
+            ImMessage imMessage = new ImMessage();
+            imMessage.setExtp(messageMap.get("extp").toString());
+            imMessage.setShowType(Integer.valueOf(messageMap.get("show_type").toString()));
+            imMessage.setChatType(Integer.valueOf(messageMap.get("chat_type").toString()));
+            imMessage.setMid(messageMap.get("mid").toString());
+            imMessage.setMsg(messageMap.get("msg").toString());
+            imMessage.setMsgSeq(Integer.valueOf(messageMap.get("msg_seq").toString()));
+            imMessage.setMsgType(Integer.valueOf(messageMap.get("msg_type").toString()));
+            imMessage.setRecv(messageMap.get("recv").toString());
+            imMessage.setSend(messageMap.get("send").toString());
+            imMessage.setSendTime(Long.valueOf(messageMap.get("send_time").toString()));
             String  extp = imMessage.getExtp();
             int priority = 5;
             if (extp != null && extp != ""){
@@ -66,9 +77,9 @@ public class RedisMessageHandler extends JedisPubSub {
                 int uid = Integer.valueOf(event.get("uid").toString());
                 int blackUid = Integer.valueOf(event.get("black_uid").toString());
                 if (action.equals("add")){
-                    L2ApplicationContext.getInstance().IMUserContext.get(uid).userBlackList.put(blackUid,1);
+                    L2ApplicationContext.getInstance().addBlackContextRelationship(uid,blackUid);
                 }else if(action.equals("delete")){
-                    L2ApplicationContext.getInstance().IMUserContext.get(uid).userBlackList.remove(blackUid);
+                    L2ApplicationContext.getInstance().delBlackContextRelationship(uid,blackUid);
                 }
             }
         }
@@ -85,11 +96,11 @@ public class RedisMessageHandler extends JedisPubSub {
             groupInfo= infoService.getByGid(String.valueOf(gid));
             imGroup.groupInfo = groupInfo;
         }
-        Map<Integer, GroupMembers> membersMap = imGroup.userList;
+        Map<Integer, GroupMembers> membersMap = imGroup.getUserList();
         if (membersMap == null || !membersMap.containsKey(uid)){
             if (membersMap == null) {
                 membersMap = new ConcurrentHashMap<>();
-                imGroup.userList = membersMap;
+                imGroup.setUserList(membersMap);
             }
             GroupMembersMapper membersMapper = ServiceFactory.getInstace(GroupMembersMapper.class);
             GroupMembers record = new GroupMembers();
@@ -117,6 +128,6 @@ public class RedisMessageHandler extends JedisPubSub {
         int gid = Integer.valueOf(event.get("gid").toString());
         int uid = Integer.valueOf(event.get("uid").toString());
         ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
-        imGroup.userList.remove(String.valueOf(uid));
+        imGroup.remove(uid);
     }
 }

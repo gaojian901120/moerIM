@@ -1,12 +1,7 @@
 package com.moer.server;
 
-import com.moer.bean.GroupMembers;
 import com.moer.config.NettyConfig;
 import com.moer.l2.L2ChannelInitializer;
-import com.moer.service.GroupMembersService;
-import com.moer.service.ServiceFactory;
-import com.moer.store.GroupStore;
-import com.moer.store.UserStore;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -21,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 /**
  * Created by gaoxuejian on 2018/5/1.

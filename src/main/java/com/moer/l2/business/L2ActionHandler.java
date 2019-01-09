@@ -10,7 +10,7 @@ import com.moer.entity.ImSession;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.l2.TimerTask;
 import com.moer.redis.RedisStore;
-import com.moer.service.ServiceFactory;
+import com.moer.common.ServiceFactory;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
@@ -181,7 +181,7 @@ public class L2ActionHandler extends ActionHandler {
             imSession.setStatus(-1);
             System.out.println("message size: " +  messageList.size());
             Collections.sort(messageList);
-            return renderResult(Constant.CODE_SUCCESS, JSON.toJSON(messageList));
+            return renderResult(Constant.CODE_SUCCESS, JSON.toJSON(L2ApplicationContext.getInstance().convertMessage(messageList)));
         } else {
             imSession.setStatus(0);
             sessionMap.put(sessionId,imSession);
