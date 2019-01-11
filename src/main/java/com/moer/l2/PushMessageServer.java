@@ -1,7 +1,6 @@
-package com.moer.server;
+package com.moer.l2;
 
 import com.moer.config.NettyConfig;
-import com.moer.l2.L2ChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;

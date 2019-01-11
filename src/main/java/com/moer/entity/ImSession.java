@@ -19,10 +19,12 @@ import java.util.Vector;
  */
 public class ImSession {
     public static final String sessionCode = "fgviunfkls8wemzdwen7q2";
-    public static final int SESSION_STATUS_NORMAL = 1;//任一一个为1 则表示用户在线
-    public static final int SESSION_STATUS_EXPIRE = 2;//过期 表示多端登陆 被踢掉的一个会话
+    public static final int SESSION_STATUS_UNPULL = -1;//-1表示该session刚通过connect调用创建 还没有通过pull进行链接
+    public static final int SESSION_STATUS_PULLING = 0;//表示当前有pull请求关联在该session上 正处于
+    public static final int SESSION_STATUS_EXPIRED = 2;//过期 主要是多端登陆的情况下 在同一端有多个session存在的话 在不允许开启多个页面的话 后链接的session会把先链接的session会话给标记成  这个状态的sessoin不再接受新的请求
     public static final String SESSION_SOURCE_WEB = "web";
     public static final String SESSION_SOURCE_APP = "app";
+    public static final int SESSION_FREELIVE_LIMIT = 30000;//session空闲生存时间  30s  即30s内没有请求到来 则session会话过期
     /**
      * 待推送到客户端的消息队列
      *多个线程同时写 需要并发 vector是线程安全的数据结构
@@ -39,6 +41,7 @@ public class ImSession {
     /**
      * 当前会话所对应的连接
      * 当用户http请求结束时 如果没有复用连接则下次请求会使用新的链接channelid会改变
+     * 两者没有啥对用关系  一个channel上可能承载好几个会话 但这个是链接层面  比如app内 多次重新链接的情况下 以及keeplive情况下 就会使用同一个channel传递数据
      */
     private Channel channel;
 
@@ -71,7 +74,7 @@ public class ImSession {
      * 0 表示有pull请求hold在服务端
      * 1表示session需要被删除
      */
-    public int status = -1;
+    public volatile int status = SESSION_STATUS_UNPULL;
 
     public static String getSessionCode() {
         return sessionCode;
@@ -138,6 +141,23 @@ public class ImSession {
         messages.addAll(msgQueue);
         msgQueue.clear();
         return messages;
+    }
+
+    /**
+     * sesion 是否有效 有效则不能够被timethread清理
+     * 有效的定义：session = 0
+     * @return
+     */
+    public boolean isVaild(){
+        if(status == SESSION_STATUS_PULLING)
+            return true;
+        long curTime = System.currentTimeMillis();
+        if(status == SESSION_STATUS_UNPULL){
+            if(curTime - updateTime <=SESSION_FREELIVE_LIMIT){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

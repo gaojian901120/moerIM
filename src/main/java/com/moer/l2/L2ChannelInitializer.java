@@ -1,9 +1,8 @@
 package com.moer.l2;
 
-import com.moer.common.RequestHandler;
+import com.moer.handler.RequestHandler;
 import com.moer.config.NettyConfig;
 import com.moer.l2.business.L2ActionHandler;
-import com.moer.server.PushMessageServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpObjectAggregator;

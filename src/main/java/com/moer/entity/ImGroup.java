@@ -25,6 +25,7 @@ public class ImGroup {
     }
 
     public void remove(Integer uid){
+        if(userList != null)
         userList.remove(uid);
     }
 

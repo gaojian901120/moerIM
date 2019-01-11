@@ -66,9 +66,6 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             Map<Integer, GroupMembers> memberMap = targetGroup.getUserList();
             Map<Integer, Integer> blackMap = null;
             Integer owner = targetGroup.groupInfo.getOwner();
-            if(imUserContext.containsKey(owner)){
-
-            }
             Set<Integer> userBlackList =  L2ApplicationContext.getInstance().UserBlackContext.get(targetGroup.groupInfo.getOwner());
             for (GroupMembers members : memberMap.values()) {
                 int uid = members.getUid();
@@ -95,13 +92,12 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
         for (ImSession session : userSessions.values()) {
             Channel channel = session.getChannel();
             session.setUpdateTime(System.currentTimeMillis());
-            System.out.println("sessionActive:" + channel.isActive());
-            System.out.println("sessionStatus:" + session.getStatus());
-            System.out.println("SessionId:" + session.getSeeesionId() +" Uid: " + session.getUid() + "ChannelId: " + session.getChannel().id());
-
-            if (channel != null) {
+            System.out.println("sessionValid:" + session.isVaild());
+            System.out.println("SessionId:" + session.getSeeesionId() +" Uid: " + session.getUid() + " ChannelId: " + session.getChannel().id());
+            System.out.println("channelActive：" +  channel.isActive());
+            if (channel.isActive() && session.isVaild()) {
                 //channel活跃只表示socket有效 可能多个请求使用同一个channel
-                if (session.getStatus() == 0) {
+                if (session.getStatus() == ImSession.SESSION_STATUS_PULLING) {
                     Vector<ImMessage> imMessages = session.popAllMsgQueue();
                     imMessages.add(imMessage);
                     Collections.sort(imMessages);
@@ -110,8 +106,8 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     data.put("message", "push message success");
                     data.put("data", L2ApplicationContext.getInstance().convertMessage(imMessages));
                     System.out.println("message size: " + imMessages.size());
-                    L2ApplicationContext.getInstance().sendResponse(channel, JSON.toJSONString(data));
-                    session.setStatus(-1);
+                    L2ApplicationContext.getInstance().sendHttpResp(channel, JSON.toJSONString(data),false);
+                    session.setStatus(ImSession.SESSION_STATUS_UNPULL);
 
                 } else {
                     //session 对应的请求 还没有过来 保持在服务器上临时存储

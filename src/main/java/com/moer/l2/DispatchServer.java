@@ -1,4 +1,4 @@
-package com.moer.server;
+package com.moer.l2;
 
 import com.moer.handler.MessageDispatchHandler;
 

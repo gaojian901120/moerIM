@@ -1,7 +1,7 @@
 package com.moer.l1;
 
 import com.moer.common.HttpChannelInitializer;
-import com.moer.common.RequestHandler;
+import com.moer.handler.RequestHandler;
 import com.moer.l1.business.L1ActionHandler;
 import io.netty.channel.Channel;
 

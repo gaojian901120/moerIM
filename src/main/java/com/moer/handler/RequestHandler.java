@@ -1,9 +1,10 @@
-package com.moer.common;
+package com.moer.handler;
 
-import io.netty.buffer.Unpooled;
+import com.moer.common.ActionHandler;
+import com.moer.l2.L2ApplicationContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,48 +29,41 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
             String uri = request.uri();
             String[] uriArr = uri.split("\\?");
             String response = "";
+            String[] uriArr2 = uriArr[0].split("/");
+            String method = uriArr2[uriArr2.length - 1];
             try {
-                String[] uriArr2 = uriArr[0].split("/");
-                String method = uriArr2[uriArr2.length - 1];
                 Method method1 = actionHandler.getClass().getMethod(method, ChannelHandlerContext.class, HttpRequest.class);
                 response = method1.invoke(actionHandler, ctx, request).toString();
             } catch (Exception e) {
                 response = "request exception: " + e.getMessage();
             }
             if (!response.equals("asynchandle")) {
-                byte[] responseB = new byte[0];
-                try {
-                    responseB = response.getBytes("UTF-8");
-                } catch (Exception e) {
-                    logger.error("encode response {} error with exception : {}", responseB, e.getMessage());
+                if(method.equals("pull")){
+                    L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, false);
+                }else {
+                    L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, true);
                 }
-                FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
-                httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
-                httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
-//                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                ctx.write(httpResponse);
-                ctx.flush();
             }
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        System.out.println("channel exceptionCaught");
+        System.out.println("channel exceptionCaught" + ctx.channel().id().asShortText());
         //ctx.close();
         super.exceptionCaught(ctx, cause);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel channelInactive");
+        System.out.println("channel channelInactive:" + ctx.channel().id().asShortText());
 
         super.channelInactive(ctx);
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel channelUnregistered");
-        //super.channelUnregistered(ctx);
+        System.out.println("channel channelUnregistered" + ctx.channel().id().asShortText());
+        super.channelUnregistered(ctx);
     }
 }

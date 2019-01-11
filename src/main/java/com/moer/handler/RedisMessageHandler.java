@@ -9,7 +9,7 @@ import com.moer.dao.mysql.GroupMembersMapper;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.l2.L2ApplicationContext;
-import com.moer.server.DispatchServer;
+import com.moer.l2.DispatchServer;
 import com.moer.service.GroupInfoService;
 import redis.clients.jedis.JedisPubSub;
 

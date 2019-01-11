@@ -221,4 +221,28 @@ public class RedisStore {
             closeRedis(jedis);
         }
     }
+
+    public boolean sadd(String key, String value){
+        if (key == null) return false;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.sadd(key,value) == 1 ? true : false;
+        }catch (Exception e){return false;}
+        finally {
+            closeRedis(jedis);
+        }
+    }
+
+    public boolean srem(String key, String value){
+        if (key == null) return false;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.srem(key,value) == 1 ? true : false;
+        }catch (Exception e){return false;}
+        finally {
+            closeRedis(jedis);
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.moer.l2.business;
 import com.alibaba.fastjson.JSON;
 import com.moer.common.ActionHandler;
 import com.moer.common.Constant;
+import com.moer.common.ServiceFactory;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImMessage;
@@ -10,7 +11,6 @@ import com.moer.entity.ImSession;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.l2.TimerTask;
 import com.moer.redis.RedisStore;
-import com.moer.common.ServiceFactory;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
@@ -71,9 +71,7 @@ public class L2ActionHandler extends ActionHandler {
         if (!(serverNode != null && serverNode.getHost().equals(nettyConfig.getHostName()) && serverNode.getPort() == nettyConfig.getPort())) {
             return renderResult(Constant.CODE_NODE_EXPIRED, null);
         }
-        RedisStore redis = ServiceFactory.getRedis();
-        redis.hset(Constant.REDIS_USER_STATUS+uid,Constant.REDIS_USER_STATUS_FIELD_ONLINE,Constant.USER_ONLINE);
-        redis.hset(Constant.REDIS_USER_ONLINE_SET, uid+"",System.currentTimeMillis()+"");
+
         //每次连接生成一个新的session
         ImSession imSession = new ImSession();
         imSession.setChannel(context.channel());
@@ -81,7 +79,7 @@ public class L2ActionHandler extends ActionHandler {
         imSession.setCreateTime(System.currentTimeMillis());
         imSession.setUpdateTime(System.currentTimeMillis());
         imSession.setSource(source);
-        imSession.setStatus(ImSession.SESSION_STATUS_NORMAL);
+        imSession.setStatus(ImSession.SESSION_STATUS_UNPULL);
         imSession.setSeeesionId(CryptUtil.str2HexStr(uid + ImSession.sessionCode + System.currentTimeMillis()));
         //判断多端登录
         Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
@@ -90,7 +88,7 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的app会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        L2ApplicationContext.getInstance().logout(session.getValue(), "user login in other app end",Constant.CODE_MULTI_END_ERROR);
+                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other app end",Constant.CODE_MULTI_END_ERROR);
                     }
                 }
             }
@@ -99,7 +97,7 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的web会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        L2ApplicationContext.getInstance().logout(session.getValue(), "user login in other web end",Constant.CODE_MULTI_END_ERROR);
+                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other web end",Constant.CODE_MULTI_END_ERROR);
                     }
                 }
             }
@@ -108,17 +106,18 @@ public class L2ActionHandler extends ActionHandler {
             if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的web会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (source.equals(ImSession.SESSION_SOURCE_APP) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        L2ApplicationContext.getInstance().logout(imSession, "user login in other end",Constant.CODE_MULTI_END_ERROR);
+                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
                     } else if (source.equals(ImSession.SESSION_SOURCE_WEB) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        L2ApplicationContext.getInstance().logout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
+                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
                     }
                 }
             }
         }
 
-            L2ApplicationContext.getInstance().login(imSession);
+            L2ApplicationContext.getInstance().sessionLogin(imSession);
             L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
             Map<String,Object> data = new HashMap<>();
+            System.out.println("connect:" + " uid: " + uid + " channelid: " + imSession.getChannel().id().asShortText());
             data.put("sessionId", imSession.getSeeesionId());
             data.put("uid",String.valueOf(uid));
             data.put("token",token);
@@ -172,26 +171,24 @@ public class L2ActionHandler extends ActionHandler {
         RedisStore redisStore = ServiceFactory.getRedis();
         redisStore.hset(Constant.REDIS_USER_ONLINE_SET, uid+"",System.currentTimeMillis()+"");
 
-        if(!context.channel().id().asLongText().equals(imSession.getChannel().id().asLongText()))
         imSession.setChannel(context.channel());//连接不相等说明channel改变了
-        System.out.println("pull用户" + uid + "活跃时间：" + imSession.getUpdateTime());
+        System.out.println("pull:" + " uid: " + uid + " channelid: " + imSession.getChannel().id().asShortText());
         List<ImMessage> messageList = imSession.popAllMsgQueue();
 
         if (messageList != null && messageList.size() > 0) {
-            imSession.setStatus(-1);
+            imSession.setStatus(ImSession.SESSION_STATUS_UNPULL);
             System.out.println("message size: " +  messageList.size());
             Collections.sort(messageList);
             return renderResult(Constant.CODE_SUCCESS, JSON.toJSON(L2ApplicationContext.getInstance().convertMessage(messageList)));
         } else {
-            imSession.setStatus(0);
+            imSession.setStatus(ImSession.SESSION_STATUS_PULLING);
             sessionMap.put(sessionId,imSession);
             System.out.println("webSessionId:" + imSession.getSeeesionId() +" Uid: " + imSession.getUid() + "ChannelId: " + context.channel().id());
 
             //没有数据 需要hold 业务线程池进行处理后续任务
-            //模拟异步提交任务
-            //BusinessServer.doBusiness(context,request);
             return "asynchandle";
         }
     }
+
 
 }
