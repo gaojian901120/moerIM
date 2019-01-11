@@ -22,6 +22,8 @@ public class ServiceFactory
             redisStore = new RedisStore(redisConfig);
             return true;
         } catch (Exception e) {
+            logger.warn("get redis instance error: " + e.getMessage());
+            logger.error(e.getMessage(),e);
             return false;
         }
     }

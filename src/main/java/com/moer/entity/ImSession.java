@@ -138,8 +138,10 @@ public class ImSession {
     }
     public Vector<ImMessage> popAllMsgQueue() {
         Vector<ImMessage> messages = new Vector<>();
-        messages.addAll(msgQueue);
-        msgQueue.clear();
+        if(msgQueue != null){
+            messages.addAll(msgQueue);
+            msgQueue.clear();
+        }
         return messages;
     }
 

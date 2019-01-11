@@ -9,6 +9,7 @@ import com.moer.bean.GroupHistoryMessageWithBLOBs;
 public class ImMessage extends GroupHistoryMessageWithBLOBs implements Comparable<ImMessage> {
     @Override
     public int compareTo(ImMessage o) {
+        if(o == null) return 1;
         if (this.getSendTime() >= o.getSendTime()) {
             return 1;
         }else if (this.getSendTime() < o.getSendTime()) {

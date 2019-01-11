@@ -21,6 +21,7 @@ public class ImGroup {
     private Map<Integer, GroupMembers> userList = new ConcurrentHashMap<>();
 
     public void addUser(Integer uid ,GroupMembers member){
+        if(userList != null)
         userList.put(uid, member);
     }
 

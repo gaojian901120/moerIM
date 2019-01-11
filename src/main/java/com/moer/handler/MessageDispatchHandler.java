@@ -72,6 +72,10 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 if (userBlackList.contains(uid)) {
                     continue;
                 }
+                //过滤登录用户
+                if(sender == uid){
+                    continue;
+                }
                 Map<String, ImSession> userSessions = imUserContext.get(uid).getSessions();
                 dispatchMsgInSessions(userSessions);
             }

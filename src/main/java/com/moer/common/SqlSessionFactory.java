@@ -35,7 +35,6 @@ public final class SqlSessionFactory {
             try {
                 inputStream = Resources.getResourceAsStream(CONFIGURATION_PATH);
                 sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, datasource);
-                logger.info("Get {} SqlSessionFactory successfully.", datasource);
             } catch (IOException e) {
                 logger.warn("Get {} SqlSessionFactory error.", datasource);
                 logger.error(e.getMessage(), e);
