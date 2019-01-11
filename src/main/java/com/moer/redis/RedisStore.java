@@ -8,6 +8,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by gaoxuejian on 2018/5/2.
@@ -239,8 +241,30 @@ public class RedisStore {
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
-            return jedis.srem(key,value) == 1 ? true : false;
+            return jedis.srem(key,value) == 1;
         }catch (Exception e){return false;}
+        finally {
+            closeRedis(jedis);
+        }
+    }
+    public Set<String> smembers(String key){
+        if (key == null) return null;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.smembers(key);
+        }catch (Exception e){return null;}
+        finally {
+            closeRedis(jedis);
+        }
+    }
+    public Map<String,String> hgetall(String key ){
+        if (key == null) return null;
+        Jedis jedis = null;
+        try{
+            jedis = jedisPool.getResource();
+            return jedis.hgetAll(key);
+        }catch (Exception e){return null;}
         finally {
             closeRedis(jedis);
         }

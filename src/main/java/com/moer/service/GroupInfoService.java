@@ -4,7 +4,9 @@ import com.moer.bean.GroupInfo;
 import com.moer.common.Constant;
 import com.moer.common.MapperFactory;
 import com.moer.common.ServiceFactory;
+import com.moer.config.NettyConfig;
 import com.moer.dao.mysql.GroupInfoMapper;
+import com.moer.l2.L2ApplicationContext;
 import com.moer.redis.RedisStore;
 
 /**
@@ -18,15 +20,6 @@ public class GroupInfoService extends BaseService
         return groupInfoMapper.selectByGid(gid);
     }
 
-    /**
-     * 设置直播间在线人数
-     * @param gid
-     */
-    public boolean setOnlineNum(String gid, int num)
-    {
-        RedisStore redisStore = ServiceFactory.getRedis();
-        return redisStore.hset(Constant.REDIS_GROUP_STATUS + gid, Constant.REDIS_GROUP_STATUS_FIELD_ONLINENUM, String.valueOf(num));
-    }
 
     /**
      * 将直播间在线人数在当前基础上增减
@@ -36,6 +29,8 @@ public class GroupInfoService extends BaseService
      */
     public Long incrOnlineNum(String gid, int num){
         RedisStore redisStore = ServiceFactory.getRedis();
-        return redisStore.hincr(Constant.REDIS_GROUP_STATUS + gid,Constant.REDIS_GROUP_STATUS_FIELD_ONLINENUM, num);
+        NettyConfig config  = L2ApplicationContext.getInstance().nettyConfig;
+        String field = config.getHostName() + ":" + config.getPort();
+        return redisStore.hincr(Constant.REDIS_GROUP_STATUS_ONLINENUM + gid,field, num);
     }
 }

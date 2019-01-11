@@ -8,12 +8,14 @@ import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
+import com.moer.entity.ImUser;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.l2.TimerTask;
 import com.moer.redis.RedisStore;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -190,5 +192,40 @@ public class L2ActionHandler extends ActionHandler {
         }
     }
 
-
+    //节点状态检查接口
+    public String status(ChannelHandlerContext context, HttpRequest request){
+        HttpMethod method = request.method();
+        Map<String, String> paramMap = new HashMap<>();
+        String result = "";
+        if (!method.equals(HttpMethod.GET)) {
+            return renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
+        }
+        String uri = request.uri();
+        QueryStringDecoder decoder = new QueryStringDecoder(uri);
+        decoder.parameters().entrySet().forEach(entry -> {
+            paramMap.put(entry.getKey(), entry.getValue().get(0));
+        });
+        if(!paramMap.containsKey("action")){
+            return renderResult(Constant.CODE_PARAM_ERROR, null);
+        }
+        String action = paramMap.get("action");
+        //查看所有连接的channel的列表
+        if(action.equals("channels")){
+            Map<Integer,ImUser> userMap =  L2ApplicationContext.getInstance().IMUserContext;
+            Map<String,Channel> resultMap = new HashMap<>();
+            for (Map.Entry<Integer, ImUser> userEntry: userMap.entrySet()) {
+                Map<String,ImSession> sessionMap = userEntry.getValue().getSessions();
+                for (Map.Entry<String, ImSession> sessionEntry :  sessionMap.entrySet()) {
+                    resultMap.put(sessionEntry.getValue().getChannel().id().asLongText(),sessionEntry.getValue().getChannel());
+                }
+            }
+            return renderResult(Constant.CODE_SUCCESS, resultMap);
+        }else if(action.equals("context")){
+            Map<String , Object> resultMap = new HashMap<>();
+            resultMap.put("groups",L2ApplicationContext.getInstance().IMGroupContext);
+            resultMap.put("users",L2ApplicationContext.getInstance().IMUserContext);
+            return renderResult(Constant.CODE_SUCCESS,resultMap);
+        }
+        return renderResult(Constant.CODE_SUCCESS, null);
+    }
 }

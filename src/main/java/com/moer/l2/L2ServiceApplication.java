@@ -36,6 +36,7 @@ public class L2ServiceApplication {
         nodeManager.setConfig(zkConfig, nettyConfig, "l2");
         new Thread(nodeManager).start();
         L2ApplicationContext.getInstance().timerThread.start();
+        L2ApplicationContext.getInstance().dataSyncToRedisThread.start();
         PushMessageServer nettyServer = new PushMessageServer(nettyConfig);
         Future future = nettyServer.start();
         nettyServer.initData();

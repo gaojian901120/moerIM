@@ -50,6 +50,7 @@ public class L2ApplicationContext {
     public Map<String, ImGroup> IMGroupContext = new ConcurrentHashMap<>();
     public Map<Integer,Set<Integer>> UserBlackContext = new ConcurrentHashMap<>();
     public TimerThread timerThread = new TimerThread();
+    public DataSyncToRedisThread dataSyncToRedisThread = new DataSyncToRedisThread();
     public ImConfig imConfig;
     public NettyConfig nettyConfig;
     //添加黑名单
@@ -238,6 +239,9 @@ public class L2ApplicationContext {
         Set<Integer> blackMap = new ConcurrentSet<>();
         if(userBlackList!= null){
             for (UserBlack black:userBlackList) {
+                if(black.getBlackUser() == null){
+                    continue;
+                }
                 blackMap.add(black.getBlackUser());
             }
             UserBlackContext.put(groupInfo.getOwner(),blackMap);

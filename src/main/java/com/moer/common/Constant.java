@@ -18,11 +18,9 @@ public class Constant {
     public static final String ZK_IM_MASTER_NODE_NAME_PREFIX = ZK_IM_ROOT_NODE_NAME + "/master:"; //格式 prefix:ip:port
 
     //群组在线人数
-    public static final String REDIS_GROUP_STATUS = "im:group:status:";
-    public static final String REDIS_GROUP_STATUS_FIELD_ONLINENUM = "onlinenum";//直播間在綫人數
-    public static final String REDIS_GROUP_STATUS_FIELD_LAST_MSG = "lastmsg";//最新的一条消息
+    public static final String REDIS_GROUP_STATUS_ONLINENUM = "im:group:status:onlinenum:";// hset  key gid  field  addr+port   value: 节点的数据
     //群组在线人数集合
-    public static final String REDIS_GROUP_SET_ONLINEUSER = "im:group:onlineset";//@TODO 将进程内的数据同步到redis中
+    public static final String REDIS_GROUP_SET_ONLINEUSER = "im:group:onlineset:";
     //用户状态hset
     public static final String REDIS_USER_STATUS = "im:user:status:";
     public static final String REDIS_USER_STATUS_FIELD_ONLINE = "online"; //用戶在綫狀態
@@ -31,8 +29,9 @@ public class Constant {
 
     //所有在线用户集合
     public static final String REDIS_USER_ONLINE_SET = "im:set:onlineuser";
+    public static final int ONLINE_DURATION = 60000;// 60s
     //未读消息数 还是根据序列号来计算
-    public static final String REDIS_USER_UNREAD_MSG_HSET = "im:hset:unreadmsgnum:";// @TODO  根据序列号相减计算得到
+
     public static final int CODE_SUCCESS = 1000;
     public static final int CODE_INVALID_REQUEST_METHOD = 1001;
     public static final int CODE_UNLOGIN = 1003;
