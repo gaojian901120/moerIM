@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by gaoxuejian on 2018/5/3.
+ * 消息数据流的入口 以mid为关键词进行查找
  */
 public class RedisMessageHandler extends JedisPubSub {
     public static Logger logger = LoggerFactory.getLogger(RedisMessageHandler.class);
@@ -33,6 +34,7 @@ public class RedisMessageHandler extends JedisPubSub {
     public void onMessage(String channel, String message) {
         try {
             if (channel.equals(Constant.MSG_RECV_QUEUE)) {
+                logger.trace(Constant.MESSAGE_TRACE,"redis channel {} receive message: {}",channel,message);
                 Map<String,Object> messageMap = JSON.parseObject(message,Map.class);
                 if(messageMap == null) return;
                 ImMessage imMessage = new ImMessage();

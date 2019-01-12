@@ -1,5 +1,8 @@
 package com.moer.common;
 
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,4 +56,7 @@ public class Constant {
         codeMap.put(CODE_UNCONNECT, "please connect the server node first");
         codeMap.put(CODE_MULTI_END_ERROR, "multiend login");
     }
+
+    public static final Marker MESSAGE_TRACE = MarkerFactory.getMarker("MessageTrace");
+    public static final Marker REQUEST_TRACE = MarkerFactory.getMarker("RequestTrace");
 }
