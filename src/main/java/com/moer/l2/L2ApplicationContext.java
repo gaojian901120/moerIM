@@ -83,6 +83,7 @@ public class L2ApplicationContext {
             sessionMap = new ConcurrentHashMap<>();
         }
         sessionMap.put(imSession.getSeeesionId(), imSession);
+        IMUserContext.put(uid,imUser);
     }
 
     /**
@@ -156,10 +157,10 @@ public class L2ApplicationContext {
         sessionLogout(imSession,message,1000);
     }
     public void sessionLogout(ImSession imSession,String message, int code){
-        System.out.println("logout:" + " uid: " + imSession.getUid() + " channelid: " + imSession.getChannel().id().asShortText());
-
         if (imSession == null)
             return;
+        System.out.println("logout:" + " uid: " + imSession.getUid() + " channelid: " + imSession.getChannel().id().asShortText());
+
         //1、设置session 为过期状态 以防止timethread中的session检测再此执行该逻辑
         imSession.setStatus(ImSession.SESSION_STATUS_EXPIRED);
 

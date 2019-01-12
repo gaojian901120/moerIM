@@ -134,7 +134,8 @@ public class ImSession {
 
 
     public void pushMsg(ImMessage imMessage) {
-        msgQueue.add(imMessage);
+        if(msgQueue != null)
+            msgQueue.add(imMessage);
     }
     public Vector<ImMessage> popAllMsgQueue() {
         Vector<ImMessage> messages = new Vector<>();

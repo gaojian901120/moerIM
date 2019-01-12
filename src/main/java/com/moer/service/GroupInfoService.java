@@ -16,8 +16,13 @@ public class GroupInfoService extends BaseService
 {
     public GroupInfo getByGid(String gid)
     {
-        GroupInfoMapper groupInfoMapper = MapperFactory.createMapper(GroupInfoMapper.class, DATA_SOURCE_LIVE);
-        return groupInfoMapper.selectByGid(gid);
+        try {
+            GroupInfoMapper groupInfoMapper = MapperFactory.createMapper(GroupInfoMapper.class, DATA_SOURCE_LIVE);
+            return groupInfoMapper.selectByGid(gid);
+        }catch (Exception e){
+            return null;
+        }
+
     }
 
 
@@ -28,9 +33,14 @@ public class GroupInfoService extends BaseService
      * @return
      */
     public Long incrOnlineNum(String gid, int num){
-        RedisStore redisStore = ServiceFactory.getRedis();
-        NettyConfig config  = L2ApplicationContext.getInstance().nettyConfig;
-        String field = config.getHostName() + ":" + config.getPort();
-        return redisStore.hincr(Constant.REDIS_GROUP_STATUS_ONLINENUM + gid,field, num);
+        try{
+            RedisStore redisStore = ServiceFactory.getRedis();
+            NettyConfig config  = L2ApplicationContext.getInstance().nettyConfig;
+            String field = config.getHostName() + ":" + config.getPort();
+            return redisStore.hincr(Constant.REDIS_GROUP_STATUS_ONLINENUM + gid,field, num);
+        }catch (Exception e){
+            return 0L;
+        }
+
     }
 }

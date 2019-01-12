@@ -67,7 +67,7 @@ public class PushMessageServer {
                     log.error("Moer IM server start failed at port: {}!", nettyConfig.getPort());
                 }
             }
-        });
+        }).syncUninterruptibly();
         return future;
     }
 

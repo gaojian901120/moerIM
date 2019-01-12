@@ -14,8 +14,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
-import static org.apache.zookeeper.Watcher.Event.KeeperState.SyncConnected;
-
 /**
  * Created by gaoxuejian on 2018/5/11.
  * 维护和zk之间的连接，同步管理其他节点的状态
@@ -54,7 +52,7 @@ public class NodeManager implements Watcher,Runnable {
         while (true) {
             synchronized (this) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                     if (dead) {
                         if (node.equals("l1")) buildL1(node);
                         else buildL2(node);

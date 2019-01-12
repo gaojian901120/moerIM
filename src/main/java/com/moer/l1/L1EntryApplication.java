@@ -44,7 +44,6 @@ public class L1EntryApplication {
         try {
             NodeManager nodeManager = NodeManager.getInstance();
             nodeManager.setConfig(zkConfig, nettyConfig, "l1");
-            new Thread(nodeManager).start();
             //启动netty 服务 开始对外提供服务
             EventLoopGroup boss = null;
             EventLoopGroup worker = null;
@@ -79,6 +78,8 @@ public class L1EntryApplication {
                     }
                 }
             }).syncUninterruptibly();
+            //最终注册节点被发现
+            new Thread(nodeManager).start();
         } catch (Exception e) {
             logger.error("server start error, message: " + e.getMessage());
         }

@@ -1,11 +1,11 @@
 package com.moer.l2;
 
 import com.moer.common.Constant;
+import com.moer.common.ServiceFactory;
 import com.moer.config.NettyConfig;
 import com.moer.handler.RedisMessageHandler;
 import com.moer.redis.RedisConfig;
 import com.moer.redis.RedisStore;
-import com.moer.common.ServiceFactory;
 import com.moer.util.ConfigUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ZkConfig;
@@ -32,20 +32,20 @@ public class L2ServiceApplication {
         ZkConfig zkConfig = ConfigUtil.loadZkConfig();
         L2ApplicationContext.getInstance().imConfig = ConfigUtil.loadImConfig();
         L2ApplicationContext.getInstance().nettyConfig = nettyConfig;
-        NodeManager nodeManager = NodeManager.getInstance();
-        nodeManager.setConfig(zkConfig, nettyConfig, "l2");
-        new Thread(nodeManager).start();
+
         L2ApplicationContext.getInstance().timerThread.start();
         L2ApplicationContext.getInstance().dataSyncToRedisThread.start();
         PushMessageServer nettyServer = new PushMessageServer(nettyConfig);
         Future future = nettyServer.start();
         nettyServer.initData();
-
+        NodeManager nodeManager = NodeManager.getInstance();
+        nodeManager.setConfig(zkConfig, nettyConfig, "l2");
+        new Thread(nodeManager).start();
         RedisMessageHandler messageListener = new RedisMessageHandler();
         RedisStore redisStore = ServiceFactory.getRedis();
         redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
         redisStore.subscribeChannel(Constant.DATA_SYNC_QUEUE, messageListener);
-        future.sync();
+
     }
 
 

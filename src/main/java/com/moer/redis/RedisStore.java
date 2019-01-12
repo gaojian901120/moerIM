@@ -160,7 +160,7 @@ public class RedisStore {
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
-            return  "OK".equals(jedis.set(key,value)) ? true : false ;
+            return  "OK".equals(jedis.set(key,value)) ;
         }catch (Exception e){ }
         finally {
             closeRedis(jedis);
@@ -206,7 +206,7 @@ public class RedisStore {
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
-            return jedis.hset(key,field,valu) == 1 ? true : false;
+            return jedis.hset(key,field,valu) == 1;
         }catch (Exception e){return false;}
         finally {
             closeRedis(jedis);
@@ -217,7 +217,7 @@ public class RedisStore {
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
-            return jedis.hdel(key,field) == 1 ? true : false;
+            return jedis.hdel(key,field) == 1;
         }catch (Exception e){return false;}
         finally {
             closeRedis(jedis);
@@ -229,7 +229,7 @@ public class RedisStore {
         Jedis jedis = null;
         try{
             jedis = jedisPool.getResource();
-            return jedis.sadd(key,value) == 1 ? true : false;
+            return jedis.sadd(key,value) == 1;
         }catch (Exception e){return false;}
         finally {
             closeRedis(jedis);

@@ -24,27 +24,35 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpRequest) {
-            HttpRequest request = (HttpRequest) msg;
-            String uri = request.uri();
-            String[] uriArr = uri.split("\\?");
-            String response = "";
-            String[] uriArr2 = uriArr[0].split("/");
-            String method = uriArr2[uriArr2.length - 1];
-            try {
-                Method method1 = actionHandler.getClass().getMethod(method, ChannelHandlerContext.class, HttpRequest.class);
-                response = method1.invoke(actionHandler, ctx, request).toString();
-            } catch (Exception e) {
-                response = "request exception: " + e.getMessage();
-            }
-            if (!response.equals("asynchandle")) {
-                if(method.equals("pull")){
-                    L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, false);
-                }else {
-                    L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, true);
+        try {
+            if (msg instanceof HttpRequest) {
+                HttpRequest request = (HttpRequest) msg;
+                String uri = request.uri();
+                String[] uriArr = uri.split("\\?");
+                String response = "";
+                String[] uriArr2 = uriArr[0].split("/");
+                String method = uriArr2[uriArr2.length - 1];
+                try {
+                    Method method1 = actionHandler.getClass().getMethod(method, ChannelHandlerContext.class, HttpRequest.class);
+                    response = method1.invoke(actionHandler, ctx, request).toString();
+                } catch (Exception e) {
+                    response = "request exception: " + e.getMessage();
+                    logger.warn("request handler error with uri {} in channel {}", uri, ctx.channel().id().asLongText());
+                    logger.error(e.getMessage(),e);
+                }
+                if (!response.equals("asynchandle")) {
+                    if(method.equals("pull")){
+                        L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, false);
+                    }else {
+                        L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, true);
+                    }
                 }
             }
+        }catch (Exception e){
+            logger.warn("request parse  error in channel {}", ctx.channel().id().asLongText());
+            logger.error(e.getMessage(),e);
         }
+
     }
 
     @Override
