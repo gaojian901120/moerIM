@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.moer.common.ActionHandler;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
+import com.moer.common.TraceLogger;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImMessage;
@@ -86,11 +87,14 @@ public class L2ActionHandler extends ActionHandler {
         //判断多端登录
         Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
         ImConfig imConfig = L2ApplicationContext.getInstance().imConfig;
+        TraceLogger.trace(Constant.USER_SESSION_TRACE, "user {} new session generate with sessionId {},",uid, imSession.getSeeesionId());
         if (!imConfig.isMultiAppEnd() && source.equals(ImSession.SESSION_SOURCE_APP)) { //保证app只有一个用户可以登录
             if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的app会话
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
                         L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other app end",Constant.CODE_MULTI_END_ERROR);
+                        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} logout because new session {} login, current config:[{}], request source:{} ",
+                                session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
                     }
                 }
             }
@@ -100,6 +104,8 @@ public class L2ActionHandler extends ActionHandler {
                 for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
                     if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
                         L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other web end",Constant.CODE_MULTI_END_ERROR);
+                        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} logout because new session {} login, current config:[{}], request source:{} ",
+                                session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
                     }
                 }
             }
@@ -112,18 +118,20 @@ public class L2ActionHandler extends ActionHandler {
                     } else if (source.equals(ImSession.SESSION_SOURCE_WEB) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
                         L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
                     }
+                    TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {}, session {} logout because new session {} login, current config:[{}], request source:{} ",
+                            session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
                 }
             }
         }
 
-            L2ApplicationContext.getInstance().sessionLogin(imSession);
-            L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
-            Map<String,Object> data = new HashMap<>();
-            System.out.println("connect:" + " uid: " + uid + " channelid: " + imSession.getChannel().id().asShortText());
-            data.put("sessionId", imSession.getSeeesionId());
-            data.put("uid",String.valueOf(uid));
-            data.put("token",token);
-            result = renderResult(1000, "connect success", data);
+        L2ApplicationContext.getInstance().sessionLogin(imSession);
+        L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
+        Map<String,Object> data = new HashMap<>();
+        data.put("sessionId", imSession.getSeeesionId());
+        data.put("uid",String.valueOf(uid));
+        data.put("token",token);
+        result = renderResult(1000, "connect success", data);
+        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} login success",imSession.getUid(), imSession.getSeeesionId());
         return result;
     }
 
@@ -174,19 +182,18 @@ public class L2ActionHandler extends ActionHandler {
         redisStore.hset(Constant.REDIS_USER_ONLINE_SET, uid+"",System.currentTimeMillis()+"");
 
         imSession.setChannel(context.channel());//连接不相等说明channel改变了
-        System.out.println("pull:" + " uid: " + uid + " channelid: " + imSession.getChannel().id().asShortText());
         List<ImMessage> messageList = imSession.popAllMsgQueue();
 
         if (messageList != null && messageList.size() > 0) {
             imSession.setStatus(ImSession.SESSION_STATUS_UNPULL);
-            System.out.println("message size: " +  messageList.size());
             Collections.sort(messageList);
+            StringBuffer midSb = new StringBuffer();
+            messageList.forEach(item->{midSb.append(item.getMid());midSb.append(",");});
+            TraceLogger.trace(Constant.MESSAGE_TRACE, "push message {} to user {} with sessionId {} and channelId {} in pull sync request", midSb.toString(), uid, imSession.getSeeesionId(), context.channel().id().asShortText());
             return renderResult(Constant.CODE_SUCCESS, JSON.toJSON(L2ApplicationContext.getInstance().convertMessage(messageList)));
         } else {
             imSession.setStatus(ImSession.SESSION_STATUS_PULLING);
             sessionMap.put(sessionId,imSession);
-            System.out.println("webSessionId:" + imSession.getSeeesionId() +" Uid: " + imSession.getUid() + "ChannelId: " + context.channel().id());
-
             //没有数据 需要hold 业务线程池进行处理后续任务
             return "asynchandle";
         }

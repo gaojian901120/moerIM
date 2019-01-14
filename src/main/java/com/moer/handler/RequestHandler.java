@@ -57,21 +57,16 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        System.out.println("channel exceptionCaught" + ctx.channel().id().asShortText());
-        //ctx.close();
         super.exceptionCaught(ctx, cause);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel channelInactive:" + ctx.channel().id().asShortText());
-
         super.channelInactive(ctx);
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel channelUnregistered" + ctx.channel().id().asShortText());
         super.channelUnregistered(ctx);
     }
 }

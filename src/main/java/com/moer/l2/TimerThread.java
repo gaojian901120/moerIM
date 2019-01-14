@@ -1,6 +1,10 @@
 package com.moer.l2;
 
+import com.moer.common.Constant;
+import com.moer.common.TraceLogger;
 import com.moer.entity.ImSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -10,6 +14,7 @@ import java.util.Queue;
  */
 public class TimerThread extends Thread
 {
+    public static Logger logger = LoggerFactory.getLogger(TimerThread.class);
     public Queue<TimerTask> taskLisk = new LinkedList<>();
 
     @Override
@@ -37,8 +42,8 @@ public class TimerThread extends Thread
                     taskLisk.add(task);
                 }else  {
                     if(imSession.getStatus() != ImSession.SESSION_STATUS_EXPIRED){
-                        System.out.println("timerthread用户" + imSession.getUid() + "活跃时间：" + imSession.getUpdateTime());
                         L2ApplicationContext.getInstance().sessionLogout(imSession, "user session expired");
+                        TraceLogger.trace(Constant.USER_SESSION_TRACE,"TimerThread: user {} session {} expired and logout, last active time {}",imSession.getUid(),imSession.getSeeesionId(),imSession.getUpdateTime());
                     }
                 }
             }

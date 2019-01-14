@@ -58,5 +58,7 @@ public class Constant {
     }
 
     public static final Marker MESSAGE_TRACE = MarkerFactory.getMarker("MessageTrace");
-    public static final Marker REQUEST_TRACE = MarkerFactory.getMarker("RequestTrace");
+    public static final Marker USER_SESSION_TRACE = MarkerFactory.getMarker("UserSessionTrace");
+    public static final Marker CHANNEL_TRACE = MarkerFactory.getMarker("ChannelTrace");
+    public static final Marker TIMERTHREAD_TRACE = MarkerFactory.getMarker("TimerThreadTrace");
 }

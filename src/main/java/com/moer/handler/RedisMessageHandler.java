@@ -5,6 +5,7 @@ import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
+import com.moer.common.TraceLogger;
 import com.moer.dao.mysql.GroupMembersMapper;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
@@ -34,7 +35,7 @@ public class RedisMessageHandler extends JedisPubSub {
     public void onMessage(String channel, String message) {
         try {
             if (channel.equals(Constant.MSG_RECV_QUEUE)) {
-                logger.trace(Constant.MESSAGE_TRACE,"redis channel {} receive message: {}",channel,message);
+                TraceLogger.trace(Constant.MESSAGE_TRACE,"redis channel {} receive message: {}",channel,message);
                 Map<String,Object> messageMap = JSON.parseObject(message,Map.class);
                 if(messageMap == null) return;
                 ImMessage imMessage = new ImMessage();

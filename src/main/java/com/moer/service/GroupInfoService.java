@@ -35,6 +35,7 @@ public class GroupInfoService extends BaseService
     public Long incrOnlineNum(String gid, int num){
         try{
             RedisStore redisStore = ServiceFactory.getRedis();
+            if(redisStore == null) return 0L;
             NettyConfig config  = L2ApplicationContext.getInstance().nettyConfig;
             String field = config.getHostName() + ":" + config.getPort();
             return redisStore.hincr(Constant.REDIS_GROUP_STATUS_ONLINENUM + gid,field, num);

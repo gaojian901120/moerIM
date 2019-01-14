@@ -116,7 +116,6 @@ public class L2ApplicationContext {
      */
     public void sessionLogin(ImSession imSession)
     {
-        System.out.println("user login :" + imSession.getUid());
         //将session加入IMUserContext 用户上下文中
         addOnlineUserSession(imSession.getUid(),imSession);
         //更新Group的信息
@@ -159,8 +158,6 @@ public class L2ApplicationContext {
     public void sessionLogout(ImSession imSession,String message, int code){
         if (imSession == null)
             return;
-        System.out.println("logout:" + " uid: " + imSession.getUid() + " channelid: " + imSession.getChannel().id().asShortText());
-
         //1、设置session 为过期状态 以防止timethread中的session检测再此执行该逻辑
         imSession.setStatus(ImSession.SESSION_STATUS_EXPIRED);
 

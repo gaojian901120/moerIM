@@ -5,6 +5,7 @@ import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
+import com.moer.common.TraceLogger;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
@@ -28,7 +29,7 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     public MessageDispatchHandler(int priority, ImMessage imMessage) {
         this.priority = priority;
         this.imMessage = imMessage;
-        logger.trace(Constant.MESSAGE_TRACE,"message dispatch handler get message: {}", imMessage.getMid());
+        TraceLogger.trace(Constant.MESSAGE_TRACE,"message dispatch handler get message: {}", imMessage.getMid());
     }
 
     public int getPriority() {
@@ -55,19 +56,19 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             int sender = Integer.valueOf(imMessage.getSend());
             String recver = imMessage.getRecv();
             if (chatType == 2) { //群聊
-                logger.trace(Constant.MESSAGE_TRACE,"begin dispatch group message {} to group {}", imMessage.getMid(), recver);
+                TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch group message {} to group {}", imMessage.getMid(), recver);
                 Map<String, ImGroup> imGroupContext = L2ApplicationContext.getInstance().IMGroupContext;
                 ImGroup targetGroup = imGroupContext.get(recver);
                 if (targetGroup == null) {
                     GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
                     GroupInfo groupInfo = infoService.getByGid(String.valueOf(recver));
                     if(groupInfo == null){
-                        logger.trace(Constant.MESSAGE_TRACE, "message {} dispatch failed because receive group {} not exist", imMessage.getMid(), recver);
+                        TraceLogger.trace(Constant.MESSAGE_TRACE, "message {} dispatch failed because receive group {} not exist", imMessage.getMid(), recver);
                         return;
                     }
                     targetGroup = L2ApplicationContext.getInstance().initImGroup(groupInfo);
                     imGroupContext.put(String.valueOf(recver), targetGroup);
-                    logger.trace(Constant.MESSAGE_TRACE, "while dispatch message {}, put group {} into ImGroupContext",imMessage.getMid(), recver);
+                    TraceLogger.trace(Constant.MESSAGE_TRACE, "while dispatch message {}, put group {} into ImGroupContext",imMessage.getMid(), recver);
                 }
                 Map<Integer, GroupMembers> memberMap = targetGroup.getUserList();
                 Set<Integer> userBlackList =  L2ApplicationContext.getInstance().UserBlackContext.get(targetGroup.groupInfo.getOwner());
@@ -89,10 +90,10 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                         pushedUserSb.append(uid);
                         pushedUserSb.append(",");
                     }
-                    logger.trace(Constant.MESSAGE_TRACE,"message {} dispatch detail: total onlineUser[{}], pushedDetailUser[{}], blackUser[{}]", imMessage.getMid(), memberMap.size(), pushedUserSb.toString(), blackUserSb.toString());
+                    TraceLogger.trace(Constant.MESSAGE_TRACE,"message {} dispatch detail: total onlineUser[{}], pushedDetailUser[{}], blackUser[{}]", imMessage.getMid(), memberMap.size(), pushedUserSb.toString(), blackUserSb.toString());
                 }
             }else if (chatType == 1) {//单聊
-                logger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
+                TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
                 dispatchMsgInSessions(Integer.valueOf(recver));
             }
         }catch (Exception e){
@@ -105,12 +106,12 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
     {
         ImUser imUser = L2ApplicationContext.getInstance().IMUserContext.get(uid);
         if(imUser == null){
-            logger.trace(Constant.MESSAGE_TRACE,"while push message {}, user {} not login, no message to push", imMessage.getMid(), uid);
+            TraceLogger.trace(Constant.MESSAGE_TRACE,"while push message {}, user {} not login, no message to push", imMessage.getMid(), uid);
             return;
         }
         Map<String, ImSession> userSessions = imUser.getSessions();
         if (userSessions == null || userSessions.size() == 0) {
-            logger.trace(Constant.MESSAGE_TRACE,"while push message {}, user {} session is empty, no message to push", imMessage.getMid(), uid);
+            TraceLogger.trace(Constant.MESSAGE_TRACE,"while push message {}, user {} session is empty, no message to push", imMessage.getMid(), uid);
             return;
         }
         for (ImSession session : userSessions.values()) {
@@ -128,14 +129,13 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     data.put("code", Constant.CODE_SUCCESS);
                     data.put("message", "push message success");
                     data.put("data", L2ApplicationContext.getInstance().convertMessage(imMessages));
-                    System.out.println("message size: " + imMessages.size());
                     L2ApplicationContext.getInstance().sendHttpResp(channel, JSON.toJSONString(data),false);
                     session.setStatus(ImSession.SESSION_STATUS_UNPULL);
-                    logger.trace(Constant.MESSAGE_TRACE, "push message {} to user {} with sessionId {} and channelId {}", midSb.toString(), uid, session.getSeeesionId(), channel.id().asShortText());
+                    TraceLogger.trace(Constant.MESSAGE_TRACE, "push message {} to user {} with sessionId {} and channelId {} async", midSb.toString(), uid, session.getSeeesionId(), channel.id().asShortText());
                 } else {
                     //session 对应的请求 还没有过来 保持在服务器上临时存储
                     session.pushMsg(imMessage);
-                    logger.trace(Constant.MESSAGE_TRACE, "pull request not coming while push message {} to user {} with sessionId {} and channelId {}, cache message {} on server", imMessage.getMid(), uid, session.getSeeesionId(), channel.id().asShortText(), imMessage.getMid());
+                    TraceLogger.trace(Constant.MESSAGE_TRACE, "pull request not coming while push message {} to user {} with sessionId {} and channelId {}, cache message {} on server", imMessage.getMid(), uid, session.getSeeesionId(), channel.id().asShortText(), imMessage.getMid());
                 }
             }
         }
