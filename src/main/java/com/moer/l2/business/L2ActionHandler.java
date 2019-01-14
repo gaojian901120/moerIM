@@ -1,12 +1,15 @@
 package com.moer.l2.business;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.moer.common.ActionHandler;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
 import com.moer.common.TraceLogger;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
+import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
@@ -16,7 +19,6 @@ import com.moer.redis.RedisStore;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -200,10 +202,9 @@ public class L2ActionHandler extends ActionHandler {
     }
 
     //节点状态检查接口
-    public String status(ChannelHandlerContext context, HttpRequest request){
+    public String status(ChannelHandlerContext context, HttpRequest request) {
         HttpMethod method = request.method();
         Map<String, String> paramMap = new HashMap<>();
-        String result = "";
         if (!method.equals(HttpMethod.GET)) {
             return renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }
@@ -212,27 +213,40 @@ public class L2ActionHandler extends ActionHandler {
         decoder.parameters().entrySet().forEach(entry -> {
             paramMap.put(entry.getKey(), entry.getValue().get(0));
         });
-        if(!paramMap.containsKey("action")){
-            return renderResult(Constant.CODE_PARAM_ERROR, null);
-        }
-        String action = paramMap.get("action");
-        //查看所有连接的channel的列表
-        if(action.equals("channels")){
-            Map<Integer,ImUser> userMap =  L2ApplicationContext.getInstance().IMUserContext;
-            Map<String,Channel> resultMap = new HashMap<>();
-            for (Map.Entry<Integer, ImUser> userEntry: userMap.entrySet()) {
-                Map<String,ImSession> sessionMap = userEntry.getValue().getSessions();
-                for (Map.Entry<String, ImSession> sessionEntry :  sessionMap.entrySet()) {
-                    resultMap.put(sessionEntry.getValue().getChannel().id().asLongText(),sessionEntry.getValue().getChannel());
-                }
-            }
-            return renderResult(Constant.CODE_SUCCESS, resultMap);
-        }else if(action.equals("context")){
-            Map<String , Object> resultMap = new HashMap<>();
-            resultMap.put("groups",L2ApplicationContext.getInstance().IMGroupContext);
-            resultMap.put("users",L2ApplicationContext.getInstance().IMUserContext);
-            return renderResult(Constant.CODE_SUCCESS,resultMap);
-        }
-        return renderResult(Constant.CODE_SUCCESS, null);
+        JSONObject jsonResult = new JSONObject();
+        Map<Integer, ImUser> imUserMap = L2ApplicationContext.getInstance().IMUserContext;
+        JSONArray userlist = new JSONArray();
+        imUserMap.forEach((gid, user) -> {
+            JSONObject item = new JSONObject();
+            item.put("uid", user.getUid());
+            item.put("groupMap", user.getGroupMap().values());
+            Map<String, ImSession> sessionMap = user.getSessions();
+            JSONArray sessionList = new JSONArray();
+            sessionMap.forEach((sid, session) -> {
+                JSONObject sessionItem = new JSONObject();
+                sessionItem.put("channelId", session.getChannel().id().asLongText());
+                sessionItem.put("updateTime", session.getUpdateTime());
+                sessionItem.put("createTime", session.getCreateTime());
+                sessionItem.put("sessionId", session.getSeeesionId());
+                sessionItem.put("uid", session.getUid());
+                sessionItem.put("status", session.getStatus());
+                sessionItem.put("source", session.getSource());
+                sessionList.add(sessionItem);
+            });
+            item.put("sessionList", sessionList);
+            userlist.add(item);
+        });
+        JSONArray groupList = new JSONArray();
+        Map<String,ImGroup> imGroupMap =  L2ApplicationContext.getInstance().IMGroupContext;
+        imGroupMap.forEach((gid,group)->{
+            JSONObject item = new JSONObject();
+            item.put("gid",group.gid);
+            item.put("info",group.groupInfo);
+            item.put("memberList",group.getUserList().values());
+            groupList.add(item);
+        });
+        jsonResult.put("groups", groupList);
+        jsonResult.put("users", userlist);
+        return renderResult(Constant.CODE_SUCCESS, jsonResult);
     }
 }

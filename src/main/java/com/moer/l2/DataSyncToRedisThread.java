@@ -57,7 +57,7 @@ public class DataSyncToRedisThread extends Thread{
                                 ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
                                 boolean thisNode = serverNode.getHost().equals(config.getHostName()) && serverNode.getPort() == config.getPort();
                                 if(thisNode){
-                                    if(!onlineUser.containsKey(uid)){
+                                    if(onlineUser == null || !onlineUser.containsKey(uid)){
                                         redis.srem(Constant.REDIS_GROUP_SET_ONLINEUSER + groupEntry.getKey(),uid);
                                     }
                                 }
@@ -65,7 +65,6 @@ public class DataSyncToRedisThread extends Thread{
                         }
                     }
                 }
-                //@TODO 数据检测逻辑  协助排查节点内的数据状态
                 Thread.sleep(SLEEP_TIME);
             }catch (Exception e){
 

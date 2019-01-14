@@ -21,12 +21,7 @@ public class ImUser {
      * 用户首次connect的时候会生成一个session，过期退出登录 进行清理
      */
     private Map<String, ImSession> sessions =  new ConcurrentHashMap<String, ImSession>();
-    /**
-     * 用户的未读消息数
-     * 根据消息序列号进行计算
-     * @TODO  更新用户未读消息数
-     */
-    private int unReadMsgNum = 0;
+
 
 
     /**
@@ -41,15 +36,6 @@ public class ImUser {
     public void setSessions(Map<String, ImSession> sessions) {
         this.sessions = sessions;
     }
-
-    public int getUnReadMsgNum() {
-        return unReadMsgNum;
-    }
-
-    public void setUnReadMsgNum(int unReadMsgNum) {
-        this.unReadMsgNum = unReadMsgNum;
-    }
-
 
     public Map<String, GroupMembers> getGroupMap() {
         return groupMap;
