@@ -29,11 +29,6 @@ public class TimerThread extends Thread
             }
             long execTime = task.getExecTime();
             long curTime = System.currentTimeMillis();
-            if (execTime > curTime) {
-                try {
-                    Thread.sleep(1000);
-                }catch (Exception e){}
-            }
             int type = task.getTaskType();
             if (type == TimerTask.TASK_SESSION_CHECK) {
                 ImSession imSession = (ImSession)task.getData();
@@ -47,6 +42,9 @@ public class TimerThread extends Thread
                     }
                 }
             }
+            try {
+                Thread.sleep(1000);
+            }catch (Exception e){}
         }
     }
 
