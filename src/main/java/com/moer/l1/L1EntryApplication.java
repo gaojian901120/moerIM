@@ -6,6 +6,7 @@ import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ZkConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -63,7 +64,7 @@ public class L1EntryApplication {
             serverBootstrap
                     .group(boss, worker)
                     .channel(channelClass)
-                    .childHandler(l1ChannelInitializer);
+                    .childHandler(l1ChannelInitializer).option(ChannelOption.SO_BACKLOG,65535);;
             InetSocketAddress addr = new InetSocketAddress(nettyConfig.getPort());
             if (nettyConfig.getHostName() != null) {
                 addr = new InetSocketAddress(nettyConfig.getHostName(), nettyConfig.getPort());

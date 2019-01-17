@@ -3,6 +3,7 @@ package com.moer.l2;
 import com.moer.config.NettyConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -53,7 +54,7 @@ public class PushMessageServer {
         serverBootstrap
                 .group(boss, worker)
                 .channel(channelClass)
-                .childHandler(imChannelInitializer);
+                .childHandler(imChannelInitializer).option(ChannelOption.SO_BACKLOG,65535);
         InetSocketAddress addr = new InetSocketAddress(port);
         if (hostName != null) {
             addr = new InetSocketAddress(hostName, port);

@@ -42,10 +42,13 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
                 try {
                     Method method1 = actionHandler.getClass().getMethod(method, ChannelHandlerContext.class, HttpRequest.class);
                     response = method1.invoke(actionHandler, ctx, request).toString();
-                } catch (Exception e) {
+                }catch (NoSuchMethodException me){
+                    response = "method "+ method +"not exist";
+                    logger.warn("method {} not exist uri {} in channel {}", method, uri, ctx.channel().id().asLongText());
+                }
+                catch (Exception e) {
                     response = "request exception: " + e.getMessage();
                     logger.warn("request handler error with uri {} in channel {}", uri, ctx.channel().id().asLongText());
-                    logger.error(e.getMessage(),e);
                 }
                 if (!response.equals("asynchandle")) {
                     if(method.equals("pull")){

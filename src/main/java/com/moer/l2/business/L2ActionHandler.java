@@ -7,14 +7,12 @@ import com.moer.common.ActionHandler;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
 import com.moer.common.TraceLogger;
-import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
 import com.moer.l2.L2ApplicationContext;
-import com.moer.l2.TimerTask;
 import com.moer.redis.RedisStore;
 import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
@@ -49,7 +47,6 @@ public class L2ActionHandler extends ActionHandler {
     public String connect(ChannelHandlerContext context, HttpRequest request) {
         HttpMethod method = request.method();
         Map<String, String> paramMap = new HashMap<>();
-        String result = "";
         if (!method.equals(HttpMethod.GET)) {
             return renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }
@@ -86,55 +83,9 @@ public class L2ActionHandler extends ActionHandler {
         imSession.setSource(source);
         imSession.setStatus(ImSession.SESSION_STATUS_UNPULL);
         imSession.setSeeesionId(CryptUtil.str2HexStr(uid + ImSession.sessionCode + System.currentTimeMillis()));
-        //判断多端登录
-        Map<String,ImSession> onlineSession = L2ApplicationContext.getInstance().getUserOnlineSession(uid);
-        ImConfig imConfig = L2ApplicationContext.getInstance().imConfig;
-        TraceLogger.trace(Constant.USER_SESSION_TRACE, "user {} new session generate with sessionId {},",uid, imSession.getSeeesionId());
-        if (!imConfig.isMultiAppEnd() && source.equals(ImSession.SESSION_SOURCE_APP)) { //保证app只有一个用户可以登录
-            if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的app会话
-                for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
-                    if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other app end",Constant.CODE_MULTI_END_ERROR);
-                        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} logout because new session {} login, current config:[{}], request source:{} ",
-                                session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
-                    }
-                }
-            }
-        }
-        if (!imConfig.isMultiWebEnd() && source.equals(ImSession.SESSION_SOURCE_WEB)) { //保证web端 只有一个用户可以登录
-            if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的web会话
-                for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
-                    if (session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other web end",Constant.CODE_MULTI_END_ERROR);
-                        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} logout because new session {} login, current config:[{}], request source:{} ",
-                                session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
-                    }
-                }
-            }
-        }
-        if (!imConfig.isMultiEnd()) { // 保证pc和app 只有一个用户可以登录
-            if (onlineSession != null && onlineSession.size()>0) { //剔除所有该用户已经登陆的web会话
-                for (Map.Entry<String, ImSession> session : onlineSession.entrySet()) {
-                    if (source.equals(ImSession.SESSION_SOURCE_APP) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_WEB)) {
-                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
-                    } else if (source.equals(ImSession.SESSION_SOURCE_WEB) && session.getValue().getSource().equals(ImSession.SESSION_SOURCE_APP)) {
-                        L2ApplicationContext.getInstance().sessionLogout(session.getValue(), "user login in other end",Constant.CODE_MULTI_END_ERROR);
-                    }
-                    TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {}, session {} logout because new session {} login, current config:[{}], request source:{} ",
-                            session.getValue().getUid(), session.getValue().getSeeesionId(), imSession.getSeeesionId(), JSON.toJSONString(imConfig), source);
-                }
-            }
-        }
-
-        L2ApplicationContext.getInstance().sessionLogin(imSession);
-        L2ApplicationContext.getInstance().timerThread.taskLisk.add(new TimerTask(imSession.getUpdateTime() + 10000, TimerTask.TASK_SESSION_CHECK, imSession));
-        Map<String,Object> data = new HashMap<>();
-        data.put("sessionId", imSession.getSeeesionId());
-        data.put("uid",String.valueOf(uid));
-        data.put("token",token);
-        result = renderResult(1000, "connect success", data);
-        TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} login success",imSession.getUid(), imSession.getSeeesionId());
-        return result;
+        //异步处理登陆问题
+        AsyncActionHandler.doLogin(context,imSession,paramMap);
+        return "asynchandle";
     }
 
 
@@ -216,6 +167,12 @@ public class L2ActionHandler extends ActionHandler {
         JSONObject jsonResult = new JSONObject();
         Map<Integer, ImUser> imUserMap = L2ApplicationContext.getInstance().IMUserContext;
         JSONArray userlist = new JSONArray();
+        String action = paramMap.get("action");
+        if("total".equals(action)){
+            JSONObject result  = new JSONObject();
+            result.put("totalUser",L2ApplicationContext.getInstance().IMUserContext.size());
+            return renderResult(Constant.CODE_SUCCESS, result);
+        }
         imUserMap.forEach((gid, user) -> {
             JSONObject item = new JSONObject();
             item.put("uid", user.getUid());
