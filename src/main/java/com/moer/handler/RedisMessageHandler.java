@@ -6,17 +6,19 @@ import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
 import com.moer.common.TraceLogger;
-import com.moer.dao.mysql.GroupMembersMapper;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
+import com.moer.entity.ImUser;
 import com.moer.l2.DispatchServer;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.service.GroupInfoService;
+import com.moer.service.GroupMembersService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPubSub;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +62,7 @@ public class RedisMessageHandler extends JedisPubSub {
                 MessageDispatchHandler handler = new MessageDispatchHandler(priority, imMessage);
                 DispatchServer.dispatchMsg(handler);
             }else if (channel.equals(Constant.DATA_SYNC_QUEUE)) {
+                TraceLogger.trace(Constant.MESSAGE_TRACE,"redis channel {} receive message: {}",channel,message);
                 Map<String,Object> event = (Map<String, Object>) JSON.parseObject(message);
                 if(event == null) return;
                 String tableName = (String) event.get("tableName");
@@ -137,16 +140,16 @@ public class RedisMessageHandler extends JedisPubSub {
                 membersMap = new ConcurrentHashMap<>();
                 imGroup.setUserList(membersMap);
             }
-            GroupMembersMapper membersMapper = ServiceFactory.getInstace(GroupMembersMapper.class);
+            GroupMembersService membersService = ServiceFactory.getInstace(GroupMembersService.class);
             GroupMembers record = new GroupMembers();
             record.setGid(String.valueOf(gid));
             record.setUid(uid);
-            List<GroupMembers> membersList = membersMapper.selectBySelective(record);
+            List<GroupMembers> membersList = membersService.getMember(record);
             if (membersList != null) {
                 membersMap.put(uid,membersList.get(0));
+                TraceLogger.trace(Constant.MEMBER_TRACE, "handleGroupMemberUpdate {} with gid {} ", uid, gid);
             }
         }
-        //@TODO 业务监控程序 方便排查问题 并修复问题
         GroupMembers groupMembers = membersMap.get(uid);
         if (event.containsKey("expire_time")) {
             try {
@@ -156,6 +159,15 @@ public class RedisMessageHandler extends JedisPubSub {
         if (event.containsKey("role_flag")) {
             groupMembers.setRoleFlag(Integer.valueOf(event.get("role_flag").toString()));
         }
+        ImUser imUser = L2ApplicationContext.getInstance().IMUserContext.get(uid);
+        if(imUser!= null){
+            Map<String,GroupMembers> userGroupMap = imUser.getGroupMap();
+            if(userGroupMap == null) {
+                userGroupMap = new HashMap<>();
+                imUser.setGroupMap(userGroupMap);
+            }
+            userGroupMap.put(groupMembers.getGid(),groupMembers);
+        }
     }
 
     public void handleGroupMemberDelete(Map<String,Object> event)
@@ -163,11 +175,18 @@ public class RedisMessageHandler extends JedisPubSub {
         if(!event.containsKey("gid") || !event.containsKey("uid")){
             return;
         }
-        int gid = Integer.valueOf(event.get("gid").toString());
+        String gid = event.get("gid").toString();
         int uid = Integer.valueOf(event.get("uid").toString());
         ImGroup imGroup = L2ApplicationContext.getInstance().IMGroupContext.get(gid);
         if(imGroup != null) {
             imGroup.remove(uid);
+        }
+        ImUser imUser = L2ApplicationContext.getInstance().IMUserContext.get(uid);
+        if(imUser!= null){
+            Map<String,GroupMembers> userGroupMap = imUser.getGroupMap();
+            if(userGroupMap != null){
+                userGroupMap.remove(String.valueOf(gid));
+            }
         }
     }
 }

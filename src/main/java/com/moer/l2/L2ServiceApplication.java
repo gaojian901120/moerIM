@@ -43,9 +43,7 @@ public class L2ServiceApplication {
         new Thread(nodeManager).start();
         RedisMessageHandler messageListener = new RedisMessageHandler();
         RedisStore redisStore = ServiceFactory.getRedis();
-        redisStore.subscribeChannel(Constant.MSG_RECV_QUEUE, messageListener);
-        redisStore.subscribeChannel(Constant.DATA_SYNC_QUEUE, messageListener);
-
+        redisStore.subscribeChannel(messageListener,Constant.MSG_RECV_QUEUE, Constant.DATA_SYNC_QUEUE);
     }
 
 

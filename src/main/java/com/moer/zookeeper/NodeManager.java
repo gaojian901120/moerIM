@@ -60,6 +60,7 @@ public class NodeManager implements Watcher,Runnable {
                         wait();
                     }
                 } catch (Exception e) {
+                    logger.error("Zookeeper exception:" + e.getMessage());
                     dead = true;
                 }
             }

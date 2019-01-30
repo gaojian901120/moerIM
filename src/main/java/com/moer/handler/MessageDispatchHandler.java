@@ -53,6 +53,9 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
             //分发消息到不同的连接层节点
             int chatType = imMessage.getChatType();
             Map<Integer, ImUser> imUserContext = L2ApplicationContext.getInstance().IMUserContext;
+            if(imMessage.getSend().equals("admin")) {
+                imMessage.setSend("0");
+            }
             int sender = Integer.valueOf(imMessage.getSend());
             String recver = imMessage.getRecv();
             if (chatType == 2) { //群聊
@@ -90,8 +93,8 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                         pushedUserSb.append(uid);
                         pushedUserSb.append(",");
                     }
-                    TraceLogger.trace(Constant.MESSAGE_TRACE,"message {} dispatch detail: total onlineUser[{}], pushedDetailUser[{}], blackUser[{}]", imMessage.getMid(), memberMap.size(), pushedUserSb.toString(), blackUserSb.toString());
                 }
+                TraceLogger.trace(Constant.MESSAGE_TRACE,"message {} dispatch detail: total onlineUser[{}], pushedDetailUser[{}], blackUser[{}]", imMessage.getMid(), memberMap.size(), pushedUserSb.toString(), blackUserSb.toString());
             }else if (chatType == 1) {//单聊
                 TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
                 dispatchMsgInSessions(Integer.valueOf(recver));

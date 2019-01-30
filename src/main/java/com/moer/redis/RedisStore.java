@@ -113,8 +113,8 @@ public class RedisStore {
         }
     }
 
-    public void subscribeChannel(String channel, JedisPubSub listener) {
-        if (channel == null) {
+    public void subscribeChannel( JedisPubSub listener,String ... channels) {
+        if (channels == null || channels.length == 0) {
             return;
         }
         Jedis jedis = null;
@@ -123,7 +123,7 @@ public class RedisStore {
         try {
             jedis = jedisPool.getResource();
             if (jedis != null) {
-                jedis.subscribe(listener, channel);
+                jedis.subscribe(listener, channels);
             }
         } catch (Exception e) {
             e.printStackTrace();

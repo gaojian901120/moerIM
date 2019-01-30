@@ -7,6 +7,7 @@ import com.moer.bean.GroupMembers;
 import com.moer.bean.UserBlack;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
+import com.moer.common.TraceLogger;
 import com.moer.config.ImConfig;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
@@ -116,6 +117,10 @@ public class L2ApplicationContext {
      */
     public void sessionLogin(ImSession imSession)
     {
+        int uid = imSession.getUid();
+        if(uid == 104094517){
+            System.out.println("debug");
+        }
         //将session加入IMUserContext 用户上下文中
         addOnlineUserSession(imSession.getUid(),imSession);
         //更新Group的信息
@@ -264,13 +269,18 @@ public class L2ApplicationContext {
         GroupMembers members = new GroupMembers();
         members.setUid(uid);
         List<GroupMembers> membersList =  membersService.getMember(members);
+        StringBuffer gidSb = new StringBuffer();
         Map<String,GroupMembers> memberMap = new HashMap<>();
         if (membersList != null && membersList.size() > 0) {
             for (GroupMembers member : membersList){
                 memberMap.put(member.getGid(),member);
+                gidSb.append(member.getGid());
+                gidSb.append(",");
             }
             user.setGroupMap(memberMap);
         }
+        TraceLogger.trace(Constant.MEMBER_TRACE, "initImUser {} with groupMembers {} ", uid, gidSb);
+
         return user;
     }
 

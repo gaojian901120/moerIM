@@ -83,8 +83,11 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
                 Map<String,ImSession> sessionMap = user.getSessions();
                 if(sessionMap != null){
                     ImSession session = sessionMap.get(sessionId);
-                    session.setStatus(ImSession.SESSION_STATUS_UNPULL);
-                    session.setUpdateTime(System.currentTimeMillis());
+                    if(session != null){
+                        session.setStatus(ImSession.SESSION_STATUS_UNPULL);
+                        session.setUpdateTime(System.currentTimeMillis());
+                    }
+
                 }
             }
         }
