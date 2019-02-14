@@ -30,7 +30,7 @@ public class PushMessageServer {
     private EventLoopGroup boss;
     private EventLoopGroup worker;
 
-    public PushMessageServer(NettyConfig config) {
+    public PushMessageServer(NettyConfig config) throws Exception{
         nettyConfig = new NettyConfig(config);
         serverBootstrap = new ServerBootstrap();
         imChannelInitializer = new L2ChannelInitializer(nettyConfig, this);

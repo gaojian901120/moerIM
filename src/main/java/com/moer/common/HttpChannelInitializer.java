@@ -5,6 +5,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
+
+import javax.net.ssl.SSLException;
+import java.io.File;
 
 /**
  * Created by gaoxuejian on 2018/5/18.
@@ -27,10 +33,21 @@ public class HttpChannelInitializer extends ChannelInitializer<Channel> {
      * outbound http编码器
      */
     public static final String HTTP_ENCODER = "httpEncoder";
+    private SslContext sslContext = null;
+    public HttpChannelInitializer() throws SSLException{
+        super();
+        File crt = new File("src/main/resources/moer_test.crt");
+        File key = new File("src/main/resources/moer_test.key"); // 私钥
+        sslContext = SslContextBuilder.forServer(crt,key).build();
+    }
+
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
-        channel.pipeline().addLast(HTTP_REQUEST_DECODER, new HttpRequestDecoder()) //in bound http 解码器  netty自带的http协议解码器
+        SslHandler sslHandler = sslContext.newHandler(channel.alloc());
+        channel.pipeline()
+                .addLast(sslHandler)
+                .addLast(HTTP_REQUEST_DECODER, new HttpRequestDecoder()) //in bound http 解码器  netty自带的http协议解码器
                 .addLast(HTTP_AGGREGATOR, new HttpObjectAggregator(65536))
                 .addLast(HTTP_ENCODER, new HttpResponseEncoder());// outbound http编码器 netty 自带的http协议编码器
     }

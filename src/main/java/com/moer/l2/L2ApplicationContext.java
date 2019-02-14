@@ -176,7 +176,11 @@ public class L2ApplicationContext {
             map.put("code", code);
             map.put("message", "user logout");
             map.put("data", message);
-            sendHttpResp(channel,JSON.toJSONString(map), true);
+            String response = JSON.toJSONString(map);
+            if(imSession.getSource().equals(ImSession.SESSION_SOURCE_WEB)){
+                response = "pullCallback(" + response + ")";
+            }
+            sendHttpResp(channel,response, true);
         }
 
         ImUser imUser = IMUserContext.get(imSession.getUid());
@@ -222,6 +226,7 @@ public class L2ApplicationContext {
         FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
+        httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN, "*.moer.cn*");
         if(close){
             httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             channel.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);

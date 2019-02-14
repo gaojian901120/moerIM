@@ -79,7 +79,11 @@ public class AsyncActionHandler {
                 data.put("uid",String.valueOf(uid));
                 data.put("token",token);
                 map.put("data", data);
-                L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),JSON.toJSONString(map),true);
+                String response = JSON.toJSONString(map);
+                if("web".equals(imSession.getSource())){
+                    response = "connectCallback (" + response + ")";
+                }
+                L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response,true);
                 TraceLogger.trace(Constant.USER_SESSION_TRACE,"user {} session {} login success",imSession.getUid(), imSession.getSeeesionId());
                 }
             catch (Exception e) {

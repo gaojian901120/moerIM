@@ -132,7 +132,11 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     data.put("code", Constant.CODE_SUCCESS);
                     data.put("message", "push message success");
                     data.put("data", L2ApplicationContext.getInstance().convertMessage(imMessages));
-                    L2ApplicationContext.getInstance().sendHttpResp(channel, JSON.toJSONString(data),false);
+                    String response = JSON.toJSONString(data);
+                    if(session.getSource().equals(ImSession.SESSION_SOURCE_WEB)){
+                        response = "pullCallback(" + response + ")";
+                    }
+                    L2ApplicationContext.getInstance().sendHttpResp(channel,response,false);
                     session.setStatus(ImSession.SESSION_STATUS_UNPULL);
                     TraceLogger.trace(Constant.MESSAGE_TRACE, "push message {} to user {} with sessionId {} and channelId {} async", midSb.toString(), uid, session.getSeeesionId(), channel.id().asShortText());
                 } else {

@@ -24,7 +24,7 @@ public class L1ActionHandler extends ActionHandler {
 
 
     //初始化方法 获取服务端的信息
-    // GET /init?uid=100809070
+    // GET /init?uid=100809070&source=xxx
     public String init(ChannelHandlerContext context, HttpRequest request) {
         HttpMethod method = request.method();
         Map<String, String> paramMap = new HashMap<>();

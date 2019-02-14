@@ -24,6 +24,7 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
     private String method;
     private String sessionId;
     private String uid;
+    private String from;
     public RequestHandler(ActionHandler actionHandler) {
         this.actionHandler = actionHandler;
     }
@@ -51,6 +52,9 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
                     logger.warn("request handler error with uri {} in channel {}", uri, ctx.channel().id().asLongText());
                 }
                 if (!response.equals("asynchandle")) {
+                    if("web".equals(from)){
+                        response = method + "Callback (" + response + ")";
+                    }
                     if(method.equals("pull")){
                         L2ApplicationContext.getInstance().sendHttpResp(ctx.channel(),response, false);
                     }else {
@@ -99,6 +103,9 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
         String uri = request.uri();
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
         decoder.parameters().entrySet().forEach(entry -> {
+            if(entry.getKey().equals("from")){
+                from = entry.getValue().get(0);
+            }
             if("pull".equals(method)){
                 if(entry.getKey().equals("sessionid")){
                     sessionId = entry.getValue().get(0);
