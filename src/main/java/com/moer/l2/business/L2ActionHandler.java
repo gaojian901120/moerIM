@@ -18,6 +18,7 @@ import com.moer.util.CryptUtil;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -55,11 +56,16 @@ public class L2ActionHandler extends ActionHandler {
         decoder.parameters().entrySet().forEach(entry -> {
             paramMap.put(entry.getKey(), entry.getValue().get(0));
         });
-        //@TODO uid不再通过参数传递  通过解密参数获取
-        if (!paramMap.containsKey("uid") || !paramMap.containsKey("token") || !paramMap.containsKey("source")) {
+        String from = paramMap.get("from");
+        HttpHeaders headers = request.headers();
+        String suid = getLoginUid(headers,from);
+        if(suid.length() == 0){
+            return renderResult(Constant.CODE_UNLOGIN, null);
+        }
+        int uid = Integer.valueOf(suid);
+        if (!paramMap.containsKey("token") || !paramMap.containsKey("source")) {
             return renderResult(Constant.CODE_PARAM_ERROR, null);
         }
-        int uid = Integer.valueOf(paramMap.get("uid"));
         String token = paramMap.get("token");
         String source = paramMap.get("source");
         if (!source.equals(ImSession.SESSION_SOURCE_APP) && !source.equals(ImSession.SESSION_SOURCE_WEB)) {
@@ -109,11 +115,16 @@ public class L2ActionHandler extends ActionHandler {
         decoder.parameters().entrySet().forEach(entry -> {
             paramMap.put(entry.getKey(), entry.getValue().get(0));
         });
-        //@TODO uid不再通过参数传递  通过解密参数获取
-        if (!paramMap.containsKey("sessionid") || !paramMap.containsKey("uid")) {
+        String from = paramMap.get("from");
+        HttpHeaders headers = request.headers();
+        String suid = getLoginUid(headers,from);
+        if(suid.length() == 0){
+            return renderResult(Constant.CODE_UNLOGIN, null);
+        }
+        if (!paramMap.containsKey("sessionid")) {
             return renderResult(Constant.CODE_PARAM_ERROR, null);
         }
-        int uid = Integer.valueOf(paramMap.get("uid"));
+        int uid = Integer.valueOf(suid);
         String sessionId = paramMap.get("sessionid");
         String token = paramMap.get("token");
         NodeManager nodeManager = NodeManager.getInstance();
@@ -128,7 +139,6 @@ public class L2ActionHandler extends ActionHandler {
         }
 
         ImSession imSession = sessionMap.get(sessionId);
-
         // 更新session活跃时间
         imSession.setUpdateTime(System.currentTimeMillis());
         RedisStore redisStore = ServiceFactory.getRedis();

@@ -29,22 +29,19 @@ public class L1ActionHandler extends ActionHandler {
         HttpMethod method = request.method();
         Map<String, String> paramMap = new HashMap<>();
         NodeManager nodeManager = NodeManager.getInstance();
+
         InitResponseBean irb = new InitResponseBean();
         String result = "";
         if (method.equals(HttpMethod.GET)) {
             String uri = request.uri();
+            QueryStringDecoder decoder = new QueryStringDecoder(uri);
+            decoder.parameters().entrySet().forEach(entry -> {
+                paramMap.put(entry.getKey(), entry.getValue().get(0));
+            });
+            String from = paramMap.get("from");
             HttpHeaders headers = request.headers();
-            String cookie = headers.get("Cookie");
-//            if (cookie != null && cookie.contains("_jm_ppt_id")) {
-            if(true){
-                //@TODO 根据pptid 获取登陆用户信息 到时候就不需要传递uid了
-                //String decode = CryptUtil.authcode("WPLNkDBlepHjloJo9_IHSjxvqGvPkRcgA6PEhyO-3CsTebUCjBORaEotA6LtYzQYUk6iUAMq1ho4InH1bJjG2V4mpIT5yLeUM_J1UDACQbXmyv-beDaSQqNG","293nAs9u23l&29",CryptUtil.DiscuzAuthcodeMode.Decode,0);
-                QueryStringDecoder decoder = new QueryStringDecoder(uri);
-                decoder.parameters().entrySet().forEach(entry -> {
-                    // entry.getValue()是一个List, 只取第一个元素
-                    paramMap.put(entry.getKey(), entry.getValue().get(0));
-                });
-                String uid = paramMap.get("uid");
+            String uid = getLoginUid(headers,from);
+            if(uid.length() > 0){
                 ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
                 if (serverNode != null) {
                     irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
@@ -57,7 +54,6 @@ public class L1ActionHandler extends ActionHandler {
             } else {
                 result = renderResult(Constant.CODE_UNLOGIN, null);
             }
-
         } else {
             result = renderResult(Constant.CODE_INVALID_REQUEST_METHOD, null);
         }

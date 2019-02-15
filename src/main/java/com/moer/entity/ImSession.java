@@ -24,6 +24,10 @@ public class ImSession {
     public static final int SESSION_STATUS_EXPIRED = 2;//过期 主要是多端登陆的情况下 在同一端有多个session存在的话 在不允许开启多个页面的话 后链接的session会把先链接的session会话给标记成  这个状态的sessoin不再接受新的请求
     public static final String SESSION_SOURCE_WEB = "web";
     public static final String SESSION_SOURCE_APP = "app";
+    public static final String FROM_IOS = "moer_app_ios";
+    public static final String FROM_ANDROID = "moer_app_android";
+    public static final String FROM_WEB = "web";
+    public static final String USER_COOKIE_FIELD = "_jm_ppt_id";
     public static final int SESSION_FREELIVE_LIMIT = 30000;//session空闲生存时间  30s  即30s内没有请求到来 则session会话过期
     /**
      * 待推送到客户端的消息队列
