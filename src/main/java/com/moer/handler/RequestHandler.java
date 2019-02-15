@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -102,7 +103,9 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
     private void parseRequest(HttpRequest request){
         String uri = request.uri();
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
+        Map<String, String> paramMap = new HashMap<>();
         decoder.parameters().entrySet().forEach(entry -> {
+            paramMap.put(entry.getKey(), entry.getValue().get(0));
             if(entry.getKey().equals("from")){
                 from = entry.getValue().get(0);
             }
@@ -110,10 +113,10 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
                 if(entry.getKey().equals("sessionid")){
                     sessionId = entry.getValue().get(0);
                 }
-                if(entry.getKey().equals("uid")){
-                    uid = entry.getValue().get(0);
-                }
             }
         });
+        from = paramMap.get("from");
+        sessionId = paramMap.get("sessionid");
+        uid = ActionHandler.getLoginUid(request.headers(),from,paramMap.get("_jm_ppt_id"));
     }
 }

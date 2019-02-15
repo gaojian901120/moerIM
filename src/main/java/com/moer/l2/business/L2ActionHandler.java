@@ -45,7 +45,7 @@ public class L2ActionHandler extends ActionHandler {
      * @param request
      * @return
      */
-    public String connect(ChannelHandlerContext context, HttpRequest request) {
+    public String connect(ChannelHandlerContext context, HttpRequest request) throws Exception {
         HttpMethod method = request.method();
         Map<String, String> paramMap = new HashMap<>();
         if (!method.equals(HttpMethod.GET)) {
@@ -58,7 +58,7 @@ public class L2ActionHandler extends ActionHandler {
         });
         String from = paramMap.get("from");
         HttpHeaders headers = request.headers();
-        String suid = getLoginUid(headers,from);
+        String suid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
         if(suid.length() == 0){
             return renderResult(Constant.CODE_UNLOGIN, null);
         }
@@ -117,7 +117,7 @@ public class L2ActionHandler extends ActionHandler {
         });
         String from = paramMap.get("from");
         HttpHeaders headers = request.headers();
-        String suid = getLoginUid(headers,from);
+        String suid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
         if(suid.length() == 0){
             return renderResult(Constant.CODE_UNLOGIN, null);
         }
@@ -139,6 +139,7 @@ public class L2ActionHandler extends ActionHandler {
         }
 
         ImSession imSession = sessionMap.get(sessionId);
+
         // 更新session活跃时间
         imSession.setUpdateTime(System.currentTimeMillis());
         RedisStore redisStore = ServiceFactory.getRedis();

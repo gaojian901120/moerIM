@@ -154,7 +154,6 @@ public class L2ApplicationContext {
 
     /**
      * 注销用户 清理用户在线数据
-     * @TODO
      */
     public void sessionLogout(ImSession imSession,String message)
     {
@@ -227,6 +226,7 @@ public class L2ApplicationContext {
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
         httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN, "*.moer.cn*");
+        httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_CREDENTIALS,"true");
         if(close){
             httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             channel.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);

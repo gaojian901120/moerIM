@@ -325,8 +325,6 @@ public class CryptUtil
             // substr($result, 10, 16) == substr(md5(substr($result, 26).$keyb), 0, 16) 验证数据完整性
             // 验证数据有效性，请看未加密明文的格式
             int time = Integer.valueOf(Long.valueOf(System.currentTimeMillis()/1000).toString());
-            System.out.println(" result.substring(10,16):" +  result.substring(10,26));
-            System.out.println("md5(result.substring(26) + keyb).substring(0, 16)):" + md5(result.substring(26) + keyb).substring(0, 16));
             if((result.substring(0,10).equals("0000000000")|| (Long.valueOf(result.substring(0,10)) - time)> 0L )&& result.substring(10,26).equals(md5(result.substring(26) + keyb).substring(0, 16))) {
                 return result.substring(26);
             } else {

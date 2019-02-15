@@ -1,6 +1,7 @@
 package com.moer.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.moer.bean.GroupInfo;
 import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
@@ -85,10 +86,6 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                             blackUserSb.append(",");
                             continue;
                         }
-                        //过滤登录用户
-                        if(sender == uid){
-                            continue;
-                        }
                         dispatchMsgInSessions(uid);
                         pushedUserSb.append(uid);
                         pushedUserSb.append(",");
@@ -96,8 +93,20 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                 }
                 TraceLogger.trace(Constant.MESSAGE_TRACE,"message {} dispatch detail: total onlineUser[{}], pushedDetailUser[{}], blackUser[{}]", imMessage.getMid(), memberMap.size(), pushedUserSb.toString(), blackUserSb.toString());
             }else if (chatType == 1) {//单聊
-                TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
-                dispatchMsgInSessions(Integer.valueOf(recver));
+                if(recver.equals("0")){
+                    String extp = imMessage.getExtp();
+                    JSONObject extpObj = JSON.parseObject(extp);
+                    String users = extpObj.getString("scope");
+                    String [] userArr = users.split(",");
+                    for (String user:userArr) {
+                        TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), user);
+                        dispatchMsgInSessions(Integer.valueOf(user));
+                    }
+                }
+                else {
+                    TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
+                    dispatchMsgInSessions(Integer.valueOf(recver));
+                }
             }
         }catch (Exception e){
             logger.warn("message {} dispatch handler error: {}", imMessage.getMid(), e.getMessage());

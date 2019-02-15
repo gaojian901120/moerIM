@@ -40,7 +40,7 @@ public class L1ActionHandler extends ActionHandler {
             });
             String from = paramMap.get("from");
             HttpHeaders headers = request.headers();
-            String uid = getLoginUid(headers,from);
+            String uid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
             if(uid.length() > 0){
                 ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
                 if (serverNode != null) {

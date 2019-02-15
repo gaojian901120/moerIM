@@ -46,7 +46,7 @@ public class RedisMessageHandler extends JedisPubSub {
                 imMessage.setChatType(Integer.valueOf(messageMap.get("chat_type").toString()));
                 imMessage.setMid(messageMap.get("mid").toString());
                 imMessage.setMsg(messageMap.get("msg").toString());
-                imMessage.setMsgSeq(Integer.valueOf(messageMap.get("msg_seq").toString()));
+                imMessage.setMsgSeq(messageMap.containsKey("msg_seq") ? Integer.valueOf(messageMap.get("msg_seq").toString()) : -1);
                 imMessage.setMsgType(Integer.valueOf(messageMap.get("msg_type").toString()));
                 imMessage.setRecv(messageMap.get("recv").toString());
                 imMessage.setSend(messageMap.get("send").toString());

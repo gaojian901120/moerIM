@@ -23,7 +23,7 @@ public class ActionHandler {
         map.put("data", data);
         return JSON.toJSONString(map);
     }
-    public String getLoginUid(String pptId) {
+    public static String getLoginUid(String pptId) {
         try {
             pptId = pptId.replace("-","+").replace("_","/");
             String decode = CryptUtil.authcode(pptId,"293nAs9u23l&29", CryptUtil.DiscuzAuthcodeMode.Decode,0);
@@ -36,7 +36,7 @@ public class ActionHandler {
             return "";
         }
     }
-    public String getLoginUid(HttpHeaders headers, String from){
+    public static String getLoginUid(HttpHeaders headers, String from,String paramCookie){
         String uid = "";
         if(ImSession.FROM_WEB.equals(from)){
             String cookies = headers.get("Cookie");
