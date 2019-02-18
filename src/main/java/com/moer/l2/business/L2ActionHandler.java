@@ -60,6 +60,9 @@ public class L2ActionHandler extends ActionHandler {
         HttpHeaders headers = request.headers();
         String suid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
         if(suid.length() == 0){
+            suid = paramMap.get("uid");
+        }
+        if(suid.length() == 0){
             return renderResult(Constant.CODE_UNLOGIN, null);
         }
         int uid = Integer.valueOf(suid);
@@ -118,6 +121,9 @@ public class L2ActionHandler extends ActionHandler {
         String from = paramMap.get("from");
         HttpHeaders headers = request.headers();
         String suid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
+        if(suid.length() == 0){
+            suid = paramMap.get("uid");
+        }
         if(suid.length() == 0){
             return renderResult(Constant.CODE_UNLOGIN, null);
         }

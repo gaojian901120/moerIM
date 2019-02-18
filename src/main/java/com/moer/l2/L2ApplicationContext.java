@@ -225,7 +225,7 @@ public class L2ApplicationContext {
         FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(responseB));
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain");
         httpResponse.headers().set(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.content().readableBytes());
-        httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN, "*.moer.cn*");
+        httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
         httpResponse.headers().set(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_CREDENTIALS,"true");
         if(close){
             httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);

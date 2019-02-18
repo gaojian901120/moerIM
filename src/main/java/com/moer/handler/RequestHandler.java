@@ -118,5 +118,8 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
         from = paramMap.get("from");
         sessionId = paramMap.get("sessionid");
         uid = ActionHandler.getLoginUid(request.headers(),from,paramMap.get("_jm_ppt_id"));
+        if(uid.length() == 0){
+            uid = paramMap.get("uid");
+        }
     }
 }

@@ -10,7 +10,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLException;
-import java.io.File;
 
 /**
  * Created by gaoxuejian on 2018/5/18.
@@ -36,9 +35,7 @@ public class HttpChannelInitializer extends ChannelInitializer<Channel> {
     private SslContext sslContext = null;
     public HttpChannelInitializer() throws SSLException{
         super();
-        File crt = new File("src/main/resources/moer_test.crt");
-        File key = new File("src/main/resources/moer_test.key"); // 私钥
-        sslContext = SslContextBuilder.forServer(crt,key).build();
+        sslContext = SslContextBuilder.forServer(this.getClass().getClassLoader().getResourceAsStream("moer_test.crt"),this.getClass().getClassLoader().getResourceAsStream("moer_test.key")).build();
     }
 
 

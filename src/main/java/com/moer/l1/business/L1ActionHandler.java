@@ -41,10 +41,14 @@ public class L1ActionHandler extends ActionHandler {
             String from = paramMap.get("from");
             HttpHeaders headers = request.headers();
             String uid = getLoginUid(headers,from,paramMap.get("_jm_ppt_id"));
+            if(uid.length() == 0){
+                uid = paramMap.get("uid");
+            }
             if(uid.length() > 0){
                 ServerNode serverNode = nodeManager.getServerNode(Integer.valueOf(uid));
                 if (serverNode != null) {
-                    irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
+                    //irb.addr = serverNode.getHost() + ":" + serverNode.getPort();
+                    irb.addr = "im.moer.cn" + ":" + serverNode.getPort();
                     irb.token = nodeManager.getNodeHash();
                     irb.uid =uid;
                     result = renderResult(Constant.CODE_SUCCESS, irb);

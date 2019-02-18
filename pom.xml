@@ -14,6 +14,7 @@
                 <includes>
                     <include>**/*.xml</include>
                     <include>**/*.properties</include>
+                    <include>moer*</include>
                 </includes>
             </resource>
             <resource>

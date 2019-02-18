@@ -97,11 +97,19 @@ public class MessageDispatchHandler implements Runnable, Comparable<MessageDispa
                     String extp = imMessage.getExtp();
                     JSONObject extpObj = JSON.parseObject(extp);
                     String users = extpObj.getString("scope");
-                    String [] userArr = users.split(",");
-                    for (String user:userArr) {
-                        TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), user);
-                        dispatchMsgInSessions(Integer.valueOf(user));
+                    if("all".equals(users)){
+                        imUserContext.forEach((kuid,vUserContext)->{
+                            TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), kuid);
+                            dispatchMsgInSessions(kuid);
+                        });
+                    }else {
+                        String [] userArr = users.split(",");
+                        for (String user:userArr) {
+                            TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), user);
+                            dispatchMsgInSessions(Integer.valueOf(user));
+                        }
                     }
+
                 }
                 else {
                     TraceLogger.trace(Constant.MESSAGE_TRACE,"begin dispatch private message {} to user {}", imMessage.getMid(), recver);
