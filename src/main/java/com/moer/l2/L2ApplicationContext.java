@@ -14,6 +14,7 @@ import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImSession;
 import com.moer.entity.ImUser;
+import com.moer.l2.thread.*;
 import com.moer.redis.RedisStore;
 import com.moer.service.GroupInfoService;
 import com.moer.service.GroupMembersService;
@@ -52,6 +53,8 @@ public class L2ApplicationContext {
     public Map<Integer,Set<Integer>> UserBlackContext = new ConcurrentHashMap<>();
     public TimerThread timerThread = new TimerThread();
     public DataSyncToRedisThread dataSyncToRedisThread = new DataSyncToRedisThread();
+    public SubscribeThread subscribeThread = new SubscribeThread();
+    public MonitorThread monitorThread = new MonitorThread();
     public ImConfig imConfig;
     public NettyConfig nettyConfig;
     //添加黑名单
@@ -163,56 +166,60 @@ public class L2ApplicationContext {
         if (imSession == null)
             return;
         //1、设置session 为过期状态 以防止timethread中的session检测再此执行该逻辑
-        imSession.setStatus(ImSession.SESSION_STATUS_EXPIRED);
+        try {
+            imSession.setStatus(ImSession.SESSION_STATUS_EXPIRED);
 
-        //2、将该session 从对应用户的session list中移除掉
-        delOnlineUserSession(imSession);
+            //2、将该session 从对应用户的session list中移除掉
+            delOnlineUserSession(imSession);
 
-        //3、发送消息告知客户端该会话过期 原因可能是没有pull或者被踢出登陆
-        Channel channel = imSession.getChannel();
-        if (channel.isActive()) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("code", code);
-            map.put("message", "user logout");
-            map.put("data", message);
-            String response = JSON.toJSONString(map);
-            if(imSession.getSource().equals(ImSession.SESSION_SOURCE_WEB)){
-                response = "pullCallback(" + response + ")";
-            }
-            sendHttpResp(channel,response, true);
-        }
-
-        ImUser imUser = IMUserContext.get(imSession.getUid());
-        if (imUser == null) return;
-        Map<String,ImSession> sessionMap = imUser.getSessions();
-        //4、为空说明用户其他链接的会话了  这种情况下 需要清理用户的信息
-        RedisStore redis = ServiceFactory.getRedis();
-        if(sessionMap == null || sessionMap.size() == 0){
-            //4.1 移除该用户的上下文信息
-            IMUserContext.remove(imSession.getUid());
-            //4.2清理用户所在直播间的数据
-            Map<String,GroupMembers> userGroup = imUser.getGroupMap();
-            if (userGroup != null && userGroup.size() > 0) {
-                GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
-                for (Map.Entry<String,GroupMembers> entry: userGroup.entrySet()) {
-                    String key = entry.getKey();
-                    //4.3群的在线人数 减1
-                    infoService.incrOnlineNum(String.valueOf(entry.getKey()), -1);
-                    //4.4群组在线人数集合 移除
-                    if(IMGroupContext.containsKey(key)){
-                        IMGroupContext.get(key).remove(imSession.getUid());
-                    }
-                    //移除群在线集合里面的redis uid
-                    redis.srem(Constant.REDIS_GROUP_SET_ONLINEUSER + entry.getKey(),entry.getValue().getUid()+"");
+            //3、发送消息告知客户端该会话过期 原因可能是没有pull或者被踢出登陆
+            Channel channel = imSession.getChannel();
+            if (channel.isActive()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("code", code);
+                map.put("message", "user logout");
+                map.put("data", message);
+                String response = JSON.toJSONString(map);
+                if(imSession.getSource().equals(ImSession.SESSION_SOURCE_WEB)){
+                    response = "pullCallback(" + response + ")";
                 }
-                //移除用户订阅的群组
-                imUser.getGroupMap().clear();
-
+                sendHttpResp(channel,response, true);
             }
-            //4.5 redis中用户移除用户的在线状态
-            redis.hdel(Constant.REDIS_USER_STATUS+imSession.getUid(),Constant.REDIS_USER_STATUS_FIELD_ONLINE);
-            //4.6 redis 中全部用户在线集合中移除该用户
-            redis.hdel(Constant.REDIS_USER_ONLINE_SET, imSession.getUid() + "");
+
+            ImUser imUser = IMUserContext.get(imSession.getUid());
+            if (imUser == null) return;
+            Map<String,ImSession> sessionMap = imUser.getSessions();
+            //4、为空说明用户其他链接的会话了  这种情况下 需要清理用户的信息
+            RedisStore redis = ServiceFactory.getRedis();
+            if(sessionMap == null || sessionMap.size() == 0) {
+                //4.1 移除该用户的上下文信息
+                IMUserContext.remove(imSession.getUid());
+                //4.2清理用户所在直播间的数据
+                Map<String, GroupMembers> userGroup = imUser.getGroupMap();
+                if (userGroup != null && userGroup.size() > 0) {
+                    GroupInfoService infoService = ServiceFactory.getInstace(GroupInfoService.class);
+                    for (Map.Entry<String, GroupMembers> entry : userGroup.entrySet()) {
+                        String key = entry.getKey();
+                        //4.3群的在线人数 减1
+                        infoService.incrOnlineNum(String.valueOf(entry.getKey()), -1);
+                        //4.4群组在线人数集合 移除
+                        if (IMGroupContext.containsKey(key)) {
+                            IMGroupContext.get(key).remove(imSession.getUid());
+                        }
+                        //移除群在线集合里面的redis uid
+                        redis.srem(Constant.REDIS_GROUP_SET_ONLINEUSER + entry.getKey(), entry.getValue().getUid() + "");
+                    }
+                    //移除用户订阅的群组
+                    imUser.getGroupMap().clear();
+
+                }
+                //4.5 redis中用户移除用户的在线状态
+                redis.hdel(Constant.REDIS_USER_STATUS + imSession.getUid(), Constant.REDIS_USER_STATUS_FIELD_ONLINE);
+                //4.6 redis 中全部用户在线集合中移除该用户
+                redis.hdel(Constant.REDIS_USER_ONLINE_SET, imSession.getUid() + "");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public void sendHttpResp(Channel channel,String response, boolean close){

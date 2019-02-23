@@ -1,6 +1,8 @@
 package com.moer.l2;
 
 import com.moer.config.NettyConfig;
+import com.moer.util.ConfigUtil;
+import com.moer.zookeeper.NodeManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -63,6 +65,9 @@ public class PushMessageServer {
         ChannelFuture future = serverBootstrap.bind(addr).addListener(new FutureListener<Void>() {
             public void operationComplete(Future<Void> future) throws Exception {
                 if (future.isSuccess()) {
+                    NodeManager nodeManager = NodeManager.getInstance();
+                    nodeManager.setConfig( ConfigUtil.loadZkConfig(), nettyConfig, "l2");
+                    new Thread(nodeManager).start();
                     log.info("Moer IM server started at port: {}", nettyConfig.getPort());
                 } else {
                     log.error("Moer IM server start failed at port: {}!", nettyConfig.getPort());

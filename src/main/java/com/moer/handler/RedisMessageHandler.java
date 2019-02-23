@@ -9,7 +9,7 @@ import com.moer.common.TraceLogger;
 import com.moer.entity.ImGroup;
 import com.moer.entity.ImMessage;
 import com.moer.entity.ImUser;
-import com.moer.l2.DispatchServer;
+import com.moer.l2.thread.DispatchServer;
 import com.moer.l2.L2ApplicationContext;
 import com.moer.service.GroupInfoService;
 import com.moer.service.GroupMembersService;
@@ -62,7 +62,7 @@ public class RedisMessageHandler extends JedisPubSub {
                 MessageDispatchHandler handler = new MessageDispatchHandler(priority, imMessage);
                 DispatchServer.dispatchMsg(handler);
             }else if (channel.equals(Constant.DATA_SYNC_QUEUE)) {
-                TraceLogger.trace(Constant.MESSAGE_TRACE,"redis channel {} receive message: {}",channel,message);
+                TraceLogger.trace(Constant.MEMBER_TRACE,"redis channel {} receive message: {}",channel,message);
                 Map<String,Object> event = (Map<String, Object>) JSON.parseObject(message);
                 if(event == null) return;
                 String tableName = (String) event.get("tableName");

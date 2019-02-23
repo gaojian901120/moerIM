@@ -1,10 +1,11 @@
-package com.moer.l2;
+package com.moer.l2.thread;
 
 import com.moer.bean.GroupMembers;
 import com.moer.common.Constant;
 import com.moer.common.ServiceFactory;
 import com.moer.config.NettyConfig;
 import com.moer.entity.ImGroup;
+import com.moer.l2.L2ApplicationContext;
 import com.moer.redis.RedisStore;
 import com.moer.zookeeper.NodeManager;
 import com.moer.zookeeper.ServerNode;
@@ -20,6 +21,7 @@ public class DataSyncToRedisThread extends Thread{
     private static final int SLEEP_TIME = 60000;// 60s
     @Override
     public void run() {
+        Thread.currentThread().setName("DataSyncToRedisThread");
         while(true){
             try {
                 Map<String,ImGroup> groupMap = L2ApplicationContext.getInstance().IMGroupContext;
@@ -67,7 +69,7 @@ public class DataSyncToRedisThread extends Thread{
                 }
                 Thread.sleep(SLEEP_TIME);
             }catch (Exception e){
-
+                e.printStackTrace();
             }
         }
     }
