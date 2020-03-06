@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- 设置一个默认的连接环境信息 -->
+    <environments default="live">
+
+        <!-- 连接环境信息，取一个任意唯一的名字 -->
+        <environment id="live">
+            <!-- mybatis使用jdbc事务管理方式 -->
+            <transactionManager type="jdbc"/>
+            <!-- mybatis使用连接池方式来获取连接 -->
+            <dataSource type="pooled">
+                <!-- 配置与数据库交互的4个必要属性 -->
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://172.16.10.116:63306/moer_live"/>
+                <property name="username" value="moer_user"/>
+                <property name="password" value="moerJR6k7h"/>
+                <property name="poolPingEnabled" value="true"/>
+                <property name="poolPingQuery" value="select 1"/>
+                <property name="poolPingConnectionsNotUsedFor" value= "300000" />
+
+            </dataSource>
+        </environment>
+        <environment id="moer">
+            <!-- mybatis使用jdbc事务管理方式 -->
+            <transactionManager type="jdbc"/>
+            <!-- mybatis使用连接池方式来获取连接 -->
+            <dataSource type="pooled">
+                <!-- 配置与数据库交互的4个必要属性 -->
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://172.16.10.116:63306/moer"/>
+                <property name="username" value="moer_user"/>
+                <property name="password" value="moerJR6k7h"/>
+                <property name="poolPingEnabled" value="true"/>
+                <property name="poolPingQuery" value="select 1"/>
+                <property name="poolPingConnectionsNotUsedFor" value= "300000" />
+
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 加载映射文件-->
+    <mappers>
+        <mapper resource="com/moer/mapper/GroupInfoMapper.xml"/>
+        <mapper resource="com/moer/mapper/GroupHistoryMessageMapper.xml"/>
+        <mapper resource="com/moer/mapper/GroupMembersMapper.xml"/>
+        <mapper resource="com/moer/mapper/UserBlackMapper.xml"/>
+    </mappers>
+
+</configuration>
