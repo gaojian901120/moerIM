@@ -12,6 +12,7 @@
         <module>dispatch</module>
         <module>service</module>
         <module>base</module>
+        <module>socket</module>
     </modules>
 
 
