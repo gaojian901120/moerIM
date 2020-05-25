@@ -8,4 +8,6 @@ public abstract class ClientToServerProtocol extends MessageProtocol {
     protected void encodeMessage(ByteBuf buf) {
 
     }
+    //接收消息后的处理逻辑
+    abstract protected boolean handle();
 }

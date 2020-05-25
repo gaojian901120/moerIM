@@ -5,12 +5,7 @@ import com.moer.socket.config.MessageType;
 import com.moer.socket.config.MessageVersion;
 import com.moer.socket.exception.MessageDecodeException;
 import io.netty.buffer.ByteBuf;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter(value = AccessLevel.PUBLIC)
-@Setter(value = AccessLevel.PUBLIC)
 public abstract class MessageProtocol {
     public final static int MAGIC_NUM = 0xa9f3;
     //魔法数  默认0xa9f3
@@ -51,12 +46,6 @@ public abstract class MessageProtocol {
         messageCRC = buf.readShort();
         if(magicNum != MAGIC_NUM){
             throw new MessageDecodeException("magic num [%d] invalid", magicNum);
-        }
-        if(!MessageVersion.isValid(messageVersion)){
-            throw new MessageDecodeException("message version [%d] invalid", messageVersion);
-        }
-        if(!MessageType.isValid(messageType)) {
-            throw new MessageDecodeException("message type [%d] invalid", messageType);
         }
         if(!MessageDirection.isValid(messageDirection)){
             throw new MessageDecodeException("message direction [%d] invalid" ,messageDirection);
